@@ -29,8 +29,8 @@ export interface FileItemWithFrom extends FileItem {
 // 以下方法都需要改为Promise，并添加loading状态。状态成功后再进行下一步操作。因为使用者可能需要与服务器进行交互
 type FileManagerCompProps = {
   files: FileItem[];
-  defaultViewMode?: ViewMode;
   openedKey: string;
+  defaultViewMode?: ViewMode;
   disabledContextMenu?: boolean;
   contextMenuItems?: ContextMenuProps['items'];
   onNavigate?: (file: FileItem | null, path: string) => Promise<any>;
@@ -44,8 +44,8 @@ type FileManagerCompProps = {
 };
 const FileManagerComp: FC<FileManagerCompProps> = ({
   files,
-  defaultViewMode = 'list',
   openedKey,
+  defaultViewMode = 'list',
   disabledContextMenu = false,
   contextMenuItems,
   onNavigate,

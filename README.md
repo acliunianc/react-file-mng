@@ -414,12 +414,12 @@ export default App;
 | openedKey           | 是   | 当前打开的文件夹`key`                                        |          | `string`                                                     |
 | defaultViewMode     |      | 默认的视图                                                   | `"list"` | `ViewMode`                                                   |
 | disabledContextMenu |      | 禁用右键菜单                                                 | `false`  | `boolean`                                                    |
-| contextMenuItems    |      | 自定义右键菜单，`actions`参数为旧右键菜单的回调函数，也就是你传递给该组件的回调函数`onNavigate, onPaste, onDelete ...` |          | ([`MenuItem`](#MenuItem) | [`SeparatorItem`](#SeparatorItem))[] |
+| contextMenuItems    |      | 自定义右键菜单，`actions`参数为旧右键菜单的回调函数，也就是你传递给该组件的回调函数`onNavigate, onPaste, onDelete ...` |          | ([`MenuItem`](#MenuItem)|[`SeparatorItem`](#SeparatorItem))[] |
 | onNavigate          |      | 打开文件夹或者输入地址栏跳转时触发的回调函数                 |          | `(file: FileItem | null, path: string) => Promise<any>`      |
-| onPaste             |      | 粘贴行为触发时的回调函数                                     |          | `(to: FileItem, files: FileItem[]) => Promise<any>`          |
-| onDelete            |      | 删除时触发的回调函数                                         |          | `(from: FileItem, ids: string[], files: FileItem[]) => Promise<any>` |
+| onPaste             |      | 右键菜单选择**粘贴**时触发时的回调函数（复制->粘贴触发）     |          | `(to: FileItem, files: FileItem[]) => Promise<any>`          |
+| onDelete            |      | 右键菜单选择**删除**时触发的回调函数                         |          | `(from: FileItem, ids: string[], files: FileItem[]) => Promise<any>` |
 | onCreateFolder      |      | 右键菜单选择**创建文件夹**时的回调函数                       |          | `(from: FileItem) => Promise<any>`                           |
-| onMove              |      | 移动文件到另一个文件夹下的回调函数                           |          | `(from: FileItem, to: FileItem, files: FileItem[]) => Promise<any>` |
+| onMove              |      | 移动文件到另一个文件夹下的回调函数（剪切->粘贴触发）         |          | `(from: FileItem, to: FileItem, files: FileItem[]) => Promise<any>` |
 | onRename            |      | 右键菜单选择**重命名**时的回调函数                           |          | `(file: FileItem, value: string) => Promise<any>`            |
 | onUpload            |      | 拖拽文件夹/文件到区域中的回调函数                            |          | `(to: FileItem, files: FileWithPath[]) => Promise<any>`      |
 | onDownload          |      | 右键菜单选择**下载**时的回调函数                             |          | `(file: FileItem) => void`                                   |
