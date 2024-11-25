@@ -41,7 +41,7 @@ npm install react-file-mng
 
 ```tsx
 import { FileManager } from "react-file-mng";
-import "react-file-mng/styles.css";
+import "react-file-mng/index.css";
 import { ReactNode, useState } from "react";
 
 type FileType = "file" | "folder";
