@@ -461,7 +461,7 @@ export default App;
 | defaultViewMode     |      | 默认的视图                                               | `"list"` | `ViewMode`                                                   |
 | disabledContextMenu |      | 禁用右键菜单                                             | `false`  | `boolean`                                                    |
 | contextMenuItems    |      | 自定义右键菜单                                           |          | ([`MenuItem`](#MenuItem)&#124;[`SeparatorItem`](#SeparatorItem))[] |
-| onNavigate          |      | 打开文件夹或者输入地址栏跳转时触发的回调函数             |          | `(file: FileItem`&#124;`;null, path: string) => Promise<any>` |
+| onNavigate          |      | 打开文件夹或者输入地址栏跳转时触发的回调函数             |          | `(file: FileItem`&#124;`null, path: string) => Promise<any>` |
 | onPaste             |      | 右键菜单选择**粘贴**时触发时的回调函数（复制->粘贴触发） |          | `(to: FileItem, files: FileItem[]) => Promise<any>`          |
 | onDelete            |      | 右键菜单选择**删除**时触发的回调函数                     |          | `(from: FileItem, ids: string[], files: FileItem[]) => Promise<any>` |
 | onCreateFolder      |      | 右键菜单选择**创建文件夹**时的回调函数                   |          | `(from: FileItem) => Promise<any>`                           |
