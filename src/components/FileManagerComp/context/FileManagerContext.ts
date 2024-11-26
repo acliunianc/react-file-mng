@@ -1,45 +1,45 @@
-import { createContext } from 'react';
-import { FileItemWithFrom, HistoryProp } from '..';
-import { FileItem, ViewMode } from '../types';
+import { createContext } from "react";
+import { FileItemWithFrom, HistoryProp } from "..";
+import { FileItem, ViewMode } from "../types";
 
 interface FileManagerContextProps {
   viewMode: ViewMode;
   setViewMode: React.Dispatch<
-    React.SetStateAction<FileManagerContextProps['viewMode']>
+    React.SetStateAction<FileManagerContextProps["viewMode"]>
   >;
 
   path: string;
   setPath: React.Dispatch<
-    React.SetStateAction<FileManagerContextProps['path']>
+    React.SetStateAction<FileManagerContextProps["path"]>
   >;
 
   historyStack: HistoryProp[];
   setHistoryStack: React.Dispatch<
-    React.SetStateAction<FileManagerContextProps['historyStack']>
+    React.SetStateAction<FileManagerContextProps["historyStack"]>
   >;
   setCurrentHistory: React.Dispatch<
-    React.SetStateAction<FileManagerContextProps['historyStack'][number]>
+    React.SetStateAction<FileManagerContextProps["historyStack"][number]>
   >;
   getHistoryIndex: () => number;
 
   selectedFileIds: string[];
   setSelectedFileIds: React.Dispatch<
-    React.SetStateAction<FileManagerContextProps['selectedFileIds']>
+    React.SetStateAction<FileManagerContextProps["selectedFileIds"]>
   >;
 
   selectedItems: FileItem[];
   setSelectedItems: React.Dispatch<
-    React.SetStateAction<FileManagerContextProps['selectedItems']>
+    React.SetStateAction<FileManagerContextProps["selectedItems"]>
   >;
 
   copySelectedItems: FileItem[];
   setCopySelectedItems: React.Dispatch<
-    React.SetStateAction<FileManagerContextProps['copySelectedItems']>
+    React.SetStateAction<FileManagerContextProps["copySelectedItems"]>
   >;
 
   cutSelectedItems: FileItemWithFrom[];
   setCutSelectedItems: React.Dispatch<
-    React.SetStateAction<FileManagerContextProps['cutSelectedItems']>
+    React.SetStateAction<FileManagerContextProps["cutSelectedItems"]>
   >;
 
   openedKey: string;
@@ -53,7 +53,7 @@ interface FileManagerContextProps {
     y: number;
   } | null;
   setContextMenu: React.Dispatch<
-    React.SetStateAction<FileManagerContextProps['contextMenu']>
+    React.SetStateAction<FileManagerContextProps["contextMenu"]>
   >;
 
   currentFolder: FileItem;
@@ -61,5 +61,5 @@ interface FileManagerContextProps {
 }
 
 export const FileManagerContext = createContext<FileManagerContextProps>(
-  {} as unknown as any,
+  {} as unknown as any
 );

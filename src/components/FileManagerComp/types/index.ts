@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
-export type FileType = 'file' | 'folder';
+export type FileType = "file" | "folder";
 
 export interface FileItem {
   id: string;
@@ -16,9 +16,9 @@ export interface FileItem {
   previewImage?: string | ReactNode;
 }
 
-export type ViewMode = 'grid' | 'list';
+export type ViewMode = "grid" | "list";
 
 export interface SortConfig {
-  field: keyof Pick<FileItem, 'name' | 'type' | 'size' | 'modifiedDate'>;
-  direction: 'asc' | 'desc';
+  field: keyof Pick<FileItem, "name" | "type" | "size" | "modifiedDate">;
+  direction: "asc" | "desc";
 }

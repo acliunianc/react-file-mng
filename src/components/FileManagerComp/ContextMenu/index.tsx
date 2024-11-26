@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
-import { FileManagerContext } from '../context/FileManagerContext';
-import { FileItem } from '../types';
+import React, { useContext } from "react";
+import { FileManagerContext } from "../context/FileManagerContext";
+import { FileItem } from "../types";
 
 type MenuItem = {
   key: string;
@@ -18,7 +18,7 @@ type MenuItem = {
       onRename?: () => void;
       onDownload?: () => void;
       onCreateFolder?: () => void;
-    },
+    }
   ) => void;
   disabled?: boolean;
   shortcut?: string;
@@ -26,7 +26,7 @@ type MenuItem = {
 };
 
 type SeparatorItem = {
-  type: 'separator';
+  type: "separator";
 };
 
 export interface ContextMenuProps {
@@ -64,54 +64,54 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
 
   const defaultMenuItems: (MenuItem | SeparatorItem)[] = [
     {
-      key: '_copy',
-      label: '复制',
+      key: "_copy",
+      label: "复制",
       onClick: onCopy,
       disabled: selectedItems.length === 0,
-      shortcut: 'Ctrl+C',
+      shortcut: "Ctrl+C",
     },
     {
-      key: '_cut',
-      label: '剪切',
+      key: "_cut",
+      label: "剪切",
       onClick: onCut,
       disabled: selectedItems.length === 0,
-      shortcut: 'Ctrl+X',
+      shortcut: "Ctrl+X",
     },
     {
-      key: '_paste',
-      label: '粘贴',
+      key: "_paste",
+      label: "粘贴",
       onClick: onPaste,
       disabled: !canPaste,
-      shortcut: 'Ctrl+V',
+      shortcut: "Ctrl+V",
     },
-    { type: 'separator' },
+    { type: "separator" },
     {
-      key: '_delete',
-      label: '删除',
+      key: "_delete",
+      label: "删除",
       onClick: onDelete,
       disabled: selectedItems.length === 0,
-      shortcut: 'Delete',
+      shortcut: "Delete",
       danger: true,
     },
     {
-      key: '_rename',
-      label: '重命名',
+      key: "_rename",
+      label: "重命名",
       onClick: onRename,
       disabled: selectedItems.length !== 1,
-      shortcut: 'F2',
+      shortcut: "F2",
     },
     {
-      key: '_download',
-      label: '下载',
+      key: "_download",
+      label: "下载",
       onClick: onDownload,
       disabled:
-        selectedItems.length !== 1 || selectedItems[0]?.type === 'folder',
+        selectedItems.length !== 1 || selectedItems[0]?.type === "folder",
       // shortcut: 'F2',
     },
-    { type: 'separator' },
+    { type: "separator" },
     {
-      key: '_createFolder',
-      label: '新建文件夹',
+      key: "_createFolder",
+      label: "新建文件夹",
       onClick: onCreateFolder,
       // shortcut: 'Ctrl+Shift+N',
     },
@@ -134,7 +134,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
         </div>
         <div className="h-px bg-gray-200 my-1"></div>
         {menuItems.map((item, index) =>
-          'type' in item ? (
+          "type" in item ? (
             <div key={`_split__${index}`} className="h-px bg-gray-200 my-1" />
           ) : (
             <button
@@ -142,11 +142,11 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
               key={item.key}
               className={`
                 w-full px-4 py-1.5 text-left flex items-center justify-between
-                ${item.danger ? 'text-red-600' : 'text-gray-700'}
+                ${item.danger ? "text-red-600" : "text-gray-700"}
                 ${
                   item.disabled
-                    ? '!text-gray-400 cursor-not-allowed'
-                    : 'hover:bg-gray-100'
+                    ? "!text-gray-400 cursor-not-allowed"
+                    : "hover:bg-gray-100"
                 }
               `}
               onClick={() => {
@@ -173,7 +173,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
                 </span>
               )}
             </button>
-          ),
+          )
         )}
       </div>
     </>

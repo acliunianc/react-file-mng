@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import { FileItem } from '../types';
+import { useCallback, useState } from "react";
+import { FileItem } from "../types";
 
 interface UseDragAndDropProps {
   onMove?: (from: FileItem, to: FileItem, files: FileItem[]) => Promise<void>;
@@ -14,7 +14,7 @@ export const useDragAndDrop = ({ onMove }: UseDragAndDropProps) => {
       setFrom(from);
       setDraggedOver(files);
     },
-    [],
+    []
   );
 
   const handleDragOver = useCallback((event: React.DragEvent) => {
@@ -37,7 +37,7 @@ export const useDragAndDrop = ({ onMove }: UseDragAndDropProps) => {
       try {
         // 检查是否在拖拽到自身或其子目录
         const isInvalidMove = draggedOver.some((item) => {
-          return to.path === item.path || to.path.startsWith(item.path + '/');
+          return to.path === item.path || to.path.startsWith(item.path + "/");
         });
 
         if (isInvalidMove) {
@@ -46,13 +46,13 @@ export const useDragAndDrop = ({ onMove }: UseDragAndDropProps) => {
 
         await onMove?.(from!, to, draggedOver);
       } catch (error) {
-        console.error('Drop failed:', error);
+        console.error("Drop failed:", error);
       }
 
       setDraggedOver([]);
       setFrom(null);
     },
-    [onMove, from, draggedOver],
+    [onMove, from, draggedOver]
   );
 
   return {

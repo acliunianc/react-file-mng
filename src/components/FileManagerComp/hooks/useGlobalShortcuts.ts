@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from "react";
 
 interface UseGlobalShortcutsProps {
   dom?: HTMLElement | null;
@@ -34,7 +34,7 @@ export const useGlobalShortcuts = ({
         return;
       }
 
-      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
       const modifier = isMac ? event.metaKey : event.ctrlKey;
 
       // 阻止浏览器默认行为
@@ -46,27 +46,27 @@ export const useGlobalShortcuts = ({
       // 检查是否按下了修饰键
       if (modifier) {
         switch (event.key.toLowerCase()) {
-          case 'c': // Ctrl/Cmd + C
+          case "c": // Ctrl/Cmd + C
             preventDefault();
             onCopy();
             break;
 
-          case 'x': // Ctrl/Cmd + X
+          case "x": // Ctrl/Cmd + X
             preventDefault();
             onCut();
             break;
 
-          case 'v': // Ctrl/Cmd + V
+          case "v": // Ctrl/Cmd + V
             preventDefault();
             onPaste();
             break;
 
-          case 'a': // Ctrl/Cmd + A
+          case "a": // Ctrl/Cmd + A
             preventDefault();
             onSelectAll();
             break;
 
-          case 'n': // Ctrl/Cmd + N
+          case "n": // Ctrl/Cmd + N
             preventDefault();
             onCreateFolder();
             break;
@@ -74,12 +74,12 @@ export const useGlobalShortcuts = ({
       } else {
         // 不需要修饰键的快捷键
         switch (event.key) {
-          case 'F2': // F2
+          case "F2": // F2
             preventDefault();
             onRename();
             break;
 
-          case 'Delete': // Delete
+          case "Delete": // Delete
             preventDefault();
             onDelete();
             break;
@@ -95,7 +95,7 @@ export const useGlobalShortcuts = ({
       onCreateFolder,
       onSelectAll,
       disabled,
-    ],
+    ]
   );
 
   useEffect(() => {
@@ -103,10 +103,10 @@ export const useGlobalShortcuts = ({
     const realDom = dom || document;
 
     // @ts-ignore
-    realDom?.addEventListener('keydown', handleKeyDown);
+    realDom?.addEventListener("keydown", handleKeyDown);
     return () => {
       // @ts-ignore
-      realDom?.removeEventListener('keydown', handleKeyDown);
+      realDom?.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown, dom]);
 };

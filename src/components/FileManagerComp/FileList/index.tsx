@@ -1,17 +1,17 @@
-import { deepFind, formatByte } from '../../../utils';
+import { deepFind, formatByte } from "../../../utils";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
   DocumentIcon,
   FolderIcon,
-} from '@heroicons/react/24/outline';
-import moment from 'moment';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { FileManagerContext } from '../context/FileManagerContext';
-import { useDragAndDrop } from '../hooks/useDragAndDrop';
-import { FileItem, SortConfig } from '../types';
+} from "@heroicons/react/24/outline";
+import moment from "moment";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { FileManagerContext } from "../context/FileManagerContext";
+import { useDragAndDrop } from "../hooks/useDragAndDrop";
+import { FileItem, SortConfig } from "../types";
 
-type SortField = 'name' | 'size' | 'type' | 'modifiedDate';
+type SortField = "name" | "size" | "type" | "modifiedDate";
 
 export interface FileListProps {
   onSelect?: (files: FileItem[]) => void;
@@ -27,8 +27,8 @@ const FileList: React.FC<FileListProps> = ({
   onMove,
 }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({
-    field: 'name',
-    direction: 'asc',
+    field: "name",
+    direction: "asc",
   });
 
   const {
@@ -43,7 +43,7 @@ const FileList: React.FC<FileListProps> = ({
 
   const cutSelectedIds = useMemo(
     () => cutSelectedItems.map((it) => it.id),
-    [cutSelectedItems],
+    [cutSelectedItems]
   );
 
   const { handleDragLeave, handleDragOver, handleDragStart, handleDrop } =
@@ -53,37 +53,37 @@ const FileList: React.FC<FileListProps> = ({
 
   // 记录最后一次单击选择的项
   const [lastSelectedItem, setLastSelectedItem] = useState<FileItem | null>(
-    null,
+    null
   );
 
   const sortFiles = (files: FileItem[], _sortConfig: SortConfig) => {
     // 分离文件夹和文件
-    const folders = files.filter((file) => file.type === 'folder');
-    const regularFiles = files.filter((file) => file.type !== 'folder');
+    const folders = files.filter((file) => file.type === "folder");
+    const regularFiles = files.filter((file) => file.type !== "folder");
 
-    const direction = _sortConfig.direction === 'asc' ? 1 : -1;
+    const direction = _sortConfig.direction === "asc" ? 1 : -1;
 
     const ext = (field: string) => {
-      return field.split('.').pop()?.toLowerCase() || '';
+      return field.split(".").pop()?.toLowerCase() || "";
     };
 
     // 排序函数
     const compareItems = (a: FileItem, b: FileItem): number => {
       switch (_sortConfig.field) {
-        case 'name':
+        case "name":
           return a.name.localeCompare(b.name) * direction;
 
-        case 'type':
+        case "type":
           return ext(a.name) === ext(b.name)
             ? a.name.localeCompare(b.name) * direction
             : ext(a.name).localeCompare(ext(b.name)) * direction;
 
-        case 'size':
+        case "size":
           return a.size === b.size
             ? a.name.localeCompare(b.name)
             : (a.size - b.size) * direction;
 
-        case 'modifiedDate':
+        case "modifiedDate":
           return a.modifiedDate === b.modifiedDate
             ? a.name.localeCompare(b.name)
             : (Number(a.modifiedDate) - Number(b.modifiedDate)) * direction;
@@ -105,9 +105,9 @@ const FileList: React.FC<FileListProps> = ({
     const newSortConfig: SortConfig = {
       field,
       direction:
-        sortConfig.field === field && sortConfig.direction === 'asc'
-          ? 'desc'
-          : 'asc',
+        sortConfig.field === field && sortConfig.direction === "asc"
+          ? "desc"
+          : "asc",
     };
 
     setSortConfig(newSortConfig);
@@ -124,7 +124,7 @@ const FileList: React.FC<FileListProps> = ({
 
   const renderSortIcon = (field: SortField) => {
     if (sortConfig.field !== field) return null;
-    return sortConfig.direction === 'asc' ? (
+    return sortConfig.direction === "asc" ? (
       <ChevronUpIcon className="w-4 h-4" />
     ) : (
       <ChevronDownIcon className="w-4 h-4" />
@@ -134,7 +134,7 @@ const FileList: React.FC<FileListProps> = ({
   const renderHeader = (
     field: SortField,
     label: string,
-    width: string = 'auto',
+    width: string = "auto"
   ) => (
     <div
       className={`
@@ -149,7 +149,7 @@ const FileList: React.FC<FileListProps> = ({
   );
 
   const handleDoubleClick = (file: FileItem) => {
-    if (file.type === 'folder' && onNavigate) {
+    if (file.type === "folder" && onNavigate) {
       onNavigate(file);
     }
   };
@@ -167,10 +167,10 @@ const FileList: React.FC<FileListProps> = ({
     // Shift + 点击：范围选择
     else if (event.shiftKey && lastSelectedItem) {
       const startIndex = (currentFolder.children || []).findIndex(
-        (f) => f === lastSelectedItem,
+        (f) => f === lastSelectedItem
       );
       const endIndex = (currentFolder.children || []).findIndex(
-        (f) => f === file,
+        (f) => f === file
       );
 
       if (startIndex !== -1 && endIndex !== -1) {
@@ -178,7 +178,7 @@ const FileList: React.FC<FileListProps> = ({
         const end = Math.max(startIndex, endIndex);
         const rangeSelection = (currentFolder.children || []).slice(
           start,
-          end + 1,
+          end + 1
         );
 
         // 如果按住 Ctrl/Command，则添加到现有选择
@@ -213,10 +213,10 @@ const FileList: React.FC<FileListProps> = ({
       {/* 表头 */}
       <div className="flex-shrink-0 flex items-center px-4 py-2 border-b font-medium text-gray-500 sticky top-0 bg-white">
         <div className="w-6" /> {/* 图标占位 */}
-        {renderHeader('name', '名称', 'flex-1')}
-        {renderHeader('type', '类型', 'w-32')}
-        {renderHeader('size', '大小', 'w-32')}
-        {renderHeader('modifiedDate', '修改日期', 'w-40')}
+        {renderHeader("name", "名称", "flex-1")}
+        {renderHeader("type", "类型", "w-32")}
+        {renderHeader("size", "大小", "w-32")}
+        {renderHeader("modifiedDate", "修改日期", "w-40")}
       </div>
 
       {/* 文件列表 */}
@@ -226,8 +226,8 @@ const FileList: React.FC<FileListProps> = ({
             key={file.id}
             className={`flex items-center px-4 py-2 cursor-pointer select-none transition-colors hover:bg-gray-50 ${
               selectedItems.map((it) => it.id).includes(file.id) &&
-              '!bg-blue-100'
-            } ${cutSelectedIds.includes(file.id) && 'opacity-50'}`}
+              "!bg-blue-100"
+            } ${cutSelectedIds.includes(file.id) && "opacity-50"}`}
             onClick={(e) => {
               e.stopPropagation();
               setContextMenu(null);
@@ -247,7 +247,7 @@ const FileList: React.FC<FileListProps> = ({
               handleDragStart(
                 e,
                 currentFolder,
-                selectedItems.length ? selectedItems : [file],
+                selectedItems.length ? selectedItems : [file]
               )
             }
             onDragOver={handleDragOver}
@@ -256,7 +256,7 @@ const FileList: React.FC<FileListProps> = ({
           >
             {/* 文件图标 */}
             <div className="w-6 h-6 flex items-center justify-center">
-              {file.type === 'folder' ? (
+              {file.type === "folder" ? (
                 <FolderIcon className="w-5 h-5 text-yellow-500" />
               ) : (
                 <DocumentIcon className="w-5 h-5 text-blue-500" />
@@ -274,7 +274,7 @@ const FileList: React.FC<FileListProps> = ({
                   }}
                   onKeyDown={(e) => {
                     // 回车失去焦点
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       (e.target as HTMLInputElement)?.blur();
                     }
                   }}
@@ -289,19 +289,19 @@ const FileList: React.FC<FileListProps> = ({
 
             {/* 类型 */}
             <div className="w-32 text-gray-500">
-              {file.type === 'folder'
-                ? '文件夹'
-                : file.name.split('.').pop()?.toUpperCase() || '文件'}
+              {file.type === "folder"
+                ? "文件夹"
+                : file.name.split(".").pop()?.toUpperCase() || "文件"}
             </div>
 
             {/* 大小 */}
             <div className="w-32 text-gray-500">
-              {file.type === 'folder' ? '-' : formatByte(file.size)}
+              {file.type === "folder" ? "-" : formatByte(file.size)}
             </div>
 
             {/* 修改时间 */}
             <div className="w-40 text-gray-500">
-              {moment(file.modifiedDate).format('YYYY-MM-DD HH:mm:ss')}
+              {moment(file.modifiedDate).format("YYYY-MM-DD HH:mm:ss")}
             </div>
           </div>
         ))}

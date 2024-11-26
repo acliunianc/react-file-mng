@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo } from "react";
 
 import {
   ArrowLeftIcon,
@@ -7,11 +7,11 @@ import {
   HomeIcon,
   ListBulletIcon,
   Squares2X2Icon,
-} from '@heroicons/react/24/outline';
-import { v4 } from 'uuid';
-import AddressBar from '../AddressBar';
-import { FileManagerContext } from '../context/FileManagerContext';
-import type { FileItem } from '../types';
+} from "@heroicons/react/24/outline";
+import { v4 } from "uuid";
+import AddressBar from "../AddressBar";
+import { FileManagerContext } from "../context/FileManagerContext";
+import type { FileItem } from "../types";
 
 export interface ToolBarProps {
   onNavigate?: (file: FileItem | null, path: string) => Promise<any>;
@@ -53,12 +53,12 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
 
   const canGoBack = useMemo(
     () => historyStack.length > 0 && getHistoryIndex() > 0,
-    [historyStack, getHistoryIndex],
+    [historyStack, getHistoryIndex]
   );
   const canGoForward = useMemo(
     () =>
       historyStack.length > 0 && getHistoryIndex() < historyStack.length - 1,
-    [historyStack, getHistoryIndex],
+    [historyStack, getHistoryIndex]
   );
   const canGoHome = useMemo(() => path !== root.path, [path, root]);
   const canGoUp = useMemo(() => path !== root.path, [path, root]);
@@ -118,7 +118,7 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
         <button
           type="button"
           className={`p-1.5 rounded-md hover:bg-gray-100 ${
-            !canGoBack && 'opacity-50 cursor-not-allowed'
+            !canGoBack && "opacity-50 cursor-not-allowed"
           }`}
           onClick={handleToolBarGoBack}
           disabled={!canGoBack}
@@ -129,7 +129,7 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
         <button
           type="button"
           className={`p-1.5 rounded-md hover:bg-gray-100 ${
-            !canGoForward && 'opacity-50 cursor-not-allowed'
+            !canGoForward && "opacity-50 cursor-not-allowed"
           }`}
           onClick={handleToolBarGoForward}
           disabled={!canGoForward}
@@ -140,7 +140,7 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
         <button
           type="button"
           className={`p-1.5 rounded-md hover:bg-gray-100 ${
-            !canGoUp && 'opacity-50 cursor-not-allowed'
+            !canGoUp && "opacity-50 cursor-not-allowed"
           }`}
           onClick={handleToolBarGoUp}
           disabled={!canGoUp}
@@ -151,7 +151,7 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
         <button
           type="button"
           className={`p-1.5 rounded-md hover:bg-gray-100 ${
-            !canGoHome && 'opacity-50 cursor-not-allowed'
+            !canGoHome && "opacity-50 cursor-not-allowed"
           }`}
           onClick={handleToolBarGoHome}
           disabled={!canGoHome}
@@ -173,9 +173,9 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
         <button
           type="button"
           className={`p-1.5 rounded-md hover:bg-gray-100 ${
-            viewMode === 'grid' && 'bg-gray-100'
+            viewMode === "grid" && "bg-gray-100"
           }`}
-          onClick={() => setViewMode('grid')}
+          onClick={() => setViewMode("grid")}
           title="网格视图"
         >
           <Squares2X2Icon className="w-5 h-5" />
@@ -183,9 +183,9 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
         <button
           type="button"
           className={`p-1.5 rounded-md hover:bg-gray-100 ${
-            viewMode === 'list' && 'bg-gray-100'
+            viewMode === "list" && "bg-gray-100"
           }`}
-          onClick={() => setViewMode('list')}
+          onClick={() => setViewMode("list")}
           title="列表视图"
         >
           <ListBulletIcon className="w-5 h-5" />

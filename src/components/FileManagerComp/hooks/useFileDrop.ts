@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from "react";
 
 interface UseFileDropProps {
   onFileDrop: (items: DataTransferItem[]) => void;
@@ -17,11 +17,11 @@ export const useFileDrop = ({
       e.stopPropagation();
 
       // 检查是否包含文件
-      if (disabled || !e.dataTransfer.types.includes('Files')) return;
+      if (disabled || !e.dataTransfer.types.includes("Files")) return;
 
       setIsDragging(true);
     },
-    [disabled],
+    [disabled]
   );
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
@@ -42,9 +42,9 @@ export const useFileDrop = ({
       if (disabled) return;
 
       // 设置拖拽效果
-      e.dataTransfer.dropEffect = 'copy';
+      e.dataTransfer.dropEffect = "copy";
     },
-    [disabled],
+    [disabled]
   );
 
   const handleDrop = useCallback(
@@ -59,7 +59,7 @@ export const useFileDrop = ({
       const items = Array.from(e.dataTransfer.items);
       onFileDrop(items);
     },
-    [disabled, onFileDrop],
+    [disabled, onFileDrop]
   );
 
   return {
