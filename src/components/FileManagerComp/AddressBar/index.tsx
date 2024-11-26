@@ -1,5 +1,11 @@
 import { FolderIcon } from "@heroicons/react/24/outline";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { FileItem } from "../types";
 
 interface PathInputProps {
@@ -103,6 +109,16 @@ const AddressBar: React.FC<PathInputProps> = ({
       setSelectedIndex(-1);
     }
   };
+
+  // 当selectedIndex变化时，滚动到选中的项
+  useLayoutEffect(() => {
+    if (selectedItemRef.current) {
+      selectedItemRef.current.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
+    }
+  }, [selectedIndex]);
 
   // 点击外部关闭下拉框
   useEffect(() => {
