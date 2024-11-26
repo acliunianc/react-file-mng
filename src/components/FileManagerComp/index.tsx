@@ -248,6 +248,30 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   const handleContextMenuDownload = useCallback(() => {
     onDownload?.(selectedItems[0]);
   }, [onDownload, selectedItems]);
+  const handleContextMenuUpload = useCallback(() => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.multiple = true;
+
+    const currentFolderPath = currentFolder.path.endsWith("/")
+      ? currentFolder.path
+      : currentFolder.path + "/";
+
+    input.onchange = (event: Event) => {
+      const files = Array.from((event.target as HTMLInputElement).files || []);
+      if (files.length > 0) {
+        onUpload?.(
+          currentFolder,
+          files.map((file) => ({
+            file,
+            path: currentFolderPath + file.name,
+          }))
+        );
+      }
+    };
+
+    input.click(); // 打开选择器
+  }, [onUpload, currentFolder]);
   const handleContextMenuCreateFolder = useCallback(async () => {
     await onCreateFolder?.(currentFolder);
   }, [onCreateFolder, currentFolder]);
@@ -291,38 +315,83 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       if (entry.isDirectory) {
         const dirReader = (entry as FileSystemDirectoryEntry).createReader();
         const entries = await new Promise<FileSystemEntry[]>((resolve) => {
-          dirReader.readEntries(resolve);
+          const allEntries: FileSystemEntry[] = [];
+          const readBatch = () => {
+            dirReader.readEntries((batch) => {
+              if (batch.length === 0) {
+                resolve(allEntries);
+                return;
+              }
+              allEntries.push(...batch);
+              readBatch();
+            });
+          };
+          readBatch();
         });
 
-        const files: FileWithPath[] = [];
-        for (const subEntry of entries) {
-          const subPath = `${basePath}/${entry.name}`;
-          const entryFiles = await processEntry(subEntry, subPath);
-          files.push(...entryFiles);
-        }
+        const subEntryFiles = await Promise.all(
+          entries.map((subEntry) =>
+            processEntry(subEntry, `${basePath}/${entry.name}`)
+          )
+        );
 
-        return files;
+        return subEntryFiles.flat();
       }
 
       return [];
     },
     []
   );
+
   // 处理文件拖拽
   const handleFileDrop = useCallback(
     async (items: DataTransferItem[]) => {
+      const entryList: FileSystemEntry[] = [];
       const filesWithPath: FileWithPath[] = [];
+      const currentFolderPath = currentFolder.path.endsWith("/")
+        ? currentFolder.path
+        : currentFolder.path + "/";
 
+      // 为什么一个循环解决不了问题?
+      // for (const item of items) {
+      //   const entry = item.webkitGetAsEntry?.();
+      //   if (entry) { // 只能拿到第一个文件, 后续所有entry都是null
+      //     const entryFiles = await processEntry(entry);
+      //     filesWithPath.push(
+      //       ...entryFiles.map((item) => ({
+      //         ...item,
+      //         path: currentFolderPath + item.path.slice(1),
+      //       })),
+      //     );
+      //   }
+      // }
+
+      // 收集所有 entry
       for (const item of items) {
-        const entry = item.webkitGetAsEntry();
-        if (!entry) continue;
-
-        const entryFiles = await processEntry(entry);
-        filesWithPath.push(...entryFiles);
+        const entry = item.webkitGetAsEntry?.();
+        if (entry) {
+          entryList.push(entry);
+        }
       }
 
+      // 使用 Promise.all 处理所有 entry
+      const entryFilesPromises = entryList.map(async (entry) => {
+        const entryFiles = await processEntry(entry);
+        return entryFiles.map((item) => ({
+          ...item,
+          path: currentFolderPath + item.path.slice(1),
+        }));
+      });
+
+      // 等待所有文件处理完成
+      const results = await Promise.all(entryFilesPromises);
+
+      // 将处理后的文件合并到 filesWithPath 中
+      results.forEach((result) => {
+        filesWithPath.push(...result);
+      });
+
       if (filesWithPath.length > 0) {
-        // 修改上传函数以支持带路径的文件
         onUpload?.(currentFolder, filesWithPath);
       }
     },
@@ -439,6 +508,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
             onDelete={handleContextMenuDelete}
             onRename={handleContextMenuRename}
             onDownload={handleContextMenuDownload}
+            onUpload={handleContextMenuUpload}
             onCreateFolder={handleContextMenuCreateFolder}
           />
         )}
