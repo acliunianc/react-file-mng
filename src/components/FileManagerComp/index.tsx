@@ -466,16 +466,22 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
           setSelectedItems([]);
           setContextMenu(null);
         }}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          setContextMenu({ x: e.pageX, y: e.pageY });
+        onContextMenu={() => {
+          setContextMenu(null);
         }}
         {...dragBindings}
       >
         <div className="flex-shrink-0">
           <ToolBar onNavigate={onNavigate} />
         </div>
-        <div className="flex-grow">
+        <div
+          className="flex-grow"
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setContextMenu({ x: e.pageX, y: e.pageY });
+          }}
+        >
           {viewMode === "list" && (
             <FileList
               onNavigate={handleFileListNavigate}
