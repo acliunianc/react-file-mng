@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
+import React, { ReactNode, useContext } from "react";
 import { FileManagerContext } from "../context/FileManagerContext";
 import { FileItem } from "../types";
 
 type MenuItem = {
   key: string;
-  label: string;
+  label: ReactNode;
   onClick?: (
     selectedItems: FileItem[],
     currentFolder: FileItem,
@@ -17,6 +17,7 @@ type MenuItem = {
       onDelete?: () => void;
       onRename?: () => void;
       onDownload?: () => void;
+      onUpload?: () => void;
       onCreateFolder?: () => void;
     }
   ) => void;
@@ -41,6 +42,7 @@ export interface ContextMenuProps {
   onDelete?: () => void;
   onRename?: () => void;
   onDownload?: () => void;
+  onUpload?: () => void;
   onCreateFolder?: () => void;
 }
 
@@ -56,6 +58,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   onDelete,
   onRename,
   onDownload,
+  onUpload,
   onCreateFolder,
 }) => {
   const { currentFolder } = useContext(FileManagerContext);
@@ -106,7 +109,11 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
       onClick: onDownload,
       disabled:
         selectedItems.length !== 1 || selectedItems[0]?.type === "folder",
-      // shortcut: 'F2',
+    },
+    {
+      key: '_upload',
+      label: '上传',
+      onClick: onUpload,
     },
     { type: "separator" },
     {
@@ -159,6 +166,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
                     onDelete,
                     onRename,
                     onDownload,
+                    onUpload,
                     onCreateFolder,
                   });
                   onClose?.();
@@ -166,9 +174,9 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
               }}
               disabled={item.disabled}
             >
-              <span>{item.label}</span>
+              <span className="flex-grow">{item.label}</span>
               {item.shortcut && (
-                <span className="text-xs text-gray-400 ml-4">
+                <span className="flex-shrink-0 text-xs text-gray-400 ml-4">
                   {item.shortcut}
                 </span>
               )}
