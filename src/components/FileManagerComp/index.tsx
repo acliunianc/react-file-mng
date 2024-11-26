@@ -1,15 +1,15 @@
-import { deepFind } from '../../utils';
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { v4 } from 'uuid';
-import { ContextMenu, ContextMenuProps } from './ContextMenu';
-import DropZone from './DropZone';
-import FileGrid from './FileGrid';
-import FileList from './FileList';
-import ToolBar from './ToolBar';
-import { FileManagerContext } from './context/FileManagerContext';
-import { useFileDrop } from './hooks/useFileDrop';
-import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
-import type { FileItem, ViewMode } from './types';
+import { deepFind } from "../../utils";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { v4 } from "uuid";
+import { ContextMenu, ContextMenuProps } from "./ContextMenu";
+import DropZone from "./DropZone";
+import FileGrid from "./FileGrid";
+import FileList from "./FileList";
+import ToolBar from "./ToolBar";
+import { FileManagerContext } from "./context/FileManagerContext";
+import { useFileDrop } from "./hooks/useFileDrop";
+import { useGlobalShortcuts } from "./hooks/useGlobalShortcuts";
+import type { FileItem, ViewMode } from "./types";
 
 export type HistoryProp = {
   path: string;
@@ -32,7 +32,7 @@ type FileManagerCompProps = {
   openedKey: string;
   defaultViewMode?: ViewMode;
   disabledContextMenu?: boolean;
-  contextMenuItems?: ContextMenuProps['items'];
+  contextMenuItems?: ContextMenuProps["items"];
   onNavigate?: (file: FileItem | null, path: string) => Promise<any>;
   onPaste?: (to: FileItem, files: FileItem[]) => Promise<any>;
   onDelete?: (from: FileItem, ids: string[], files: FileItem[]) => Promise<any>;
@@ -45,7 +45,7 @@ type FileManagerCompProps = {
 const FileManagerComp: FC<FileManagerCompProps> = ({
   files,
   openedKey,
-  defaultViewMode = 'list',
+  defaultViewMode = "list",
   disabledContextMenu = false,
   contextMenuItems,
   onNavigate,
@@ -59,7 +59,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
 }) => {
   const fileManagerRef = useRef<HTMLDivElement>(null);
 
-  const [viewMode, setViewMode] = useState<ViewMode>(defaultViewMode ?? 'list');
+  const [viewMode, setViewMode] = useState<ViewMode>(defaultViewMode ?? "list");
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>([]);
   const [selectedItems, setSelectedItems] = useState<FileItem[]>([]);
 
@@ -67,23 +67,23 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   const [copySelectedItems, setCopySelectedItems] = useState<FileItem[]>([]);
   // 剪切的文件列表
   const [cutSelectedItems, setCutSelectedItems] = useState<FileItemWithFrom[]>(
-    [],
+    []
   );
 
-  const [path, setPath] = useState('/');
+  const [path, setPath] = useState("/");
   const [realFiles, setRealFiles] = useState<FileItem[]>([]);
 
   const root = useMemo<FileItem>(
     () => ({
-      id: '0',
-      path: '/',
-      name: '根目录',
-      type: 'folder',
+      id: "0",
+      path: "/",
+      name: "根目录",
+      type: "folder",
       children: files,
       size: 0,
       modifiedDate: new Date().getTime(),
     }),
-    [files],
+    [files]
   );
 
   const [contextMenu, setContextMenu] = useState<{
@@ -106,11 +106,11 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   useEffect(() => {
     const deepMap = (
       arr: (FileItem & { parent?: FileItem })[],
-      parent?: (FileItem & { parent?: FileItem }) | null,
+      parent?: (FileItem & { parent?: FileItem }) | null
     ) => {
       return arr.map((item) => {
         if (parent) (item as any).parent = parent;
-        if (item.type === 'folder' && item.children) {
+        if (item.type === "folder" && item.children) {
           item.children = deepMap(item.children, item);
         }
         return item;
@@ -141,8 +141,8 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   // ------------------------------------------
   // #region
   const [currentHistory, setCurrentHistory] = useState<HistoryProp>(() => ({
-    id: '0',
-    path: '/',
+    id: "0",
+    path: "/",
     record: currentFolder,
   }));
   const [historyStack, setHistoryStack] = useState<HistoryProp[]>(() => [
@@ -172,7 +172,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       setCurrentHistory(newHistory);
       setPath(file.path);
     },
-    [getHistoryIndex, historyStack, onNavigate],
+    [getHistoryIndex, historyStack, onNavigate]
   );
   const handleFileListSelect = useCallback((files: FileItem[]) => {
     setSelectedFileIds(files.map((it) => it.id));
@@ -190,7 +190,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       }));
       await onRename?.(file, value);
     },
-    [onRename],
+    [onRename]
   );
   // #endregion
 
@@ -218,7 +218,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       await onMove?.(
         cutSelectedItems[0]?.from,
         currentFolder,
-        cutSelectedItems,
+        cutSelectedItems
       );
     }
     // 粘贴完成需要清空剪切板列表
@@ -228,7 +228,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
     await onDelete?.(
       currentFolder,
       selectedItems.map((it) => it.id),
-      selectedItems,
+      selectedItems
     );
   }, [onDelete, currentFolder, selectedItems]);
   const handleContextMenuRename = useCallback(() => {
@@ -277,7 +277,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   const processEntry = useCallback(
     async (
       entry: FileSystemEntry,
-      basePath: string = '',
+      basePath: string = ""
     ): Promise<FileWithPath[]> => {
       if (entry.isFile) {
         return new Promise((resolve) => {
@@ -306,7 +306,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
 
       return [];
     },
-    [],
+    []
   );
   // 处理文件拖拽
   const handleFileDrop = useCallback(
@@ -326,7 +326,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
         onUpload?.(currentFolder, filesWithPath);
       }
     },
-    [onUpload, processEntry, currentFolder],
+    [onUpload, processEntry, currentFolder]
   );
   const { isDragging, dragBindings } = useFileDrop({
     onFileDrop: handleFileDrop,
@@ -391,7 +391,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       <div
         ref={fileManagerRef}
         tabIndex={-1}
-        className="h-full w-full bg-white rounded-lg shadow-lg border flex flex-col"
+        className="relative h-full w-full bg-white rounded-lg shadow-lg border flex flex-col"
         onClick={() => {
           setSelectedFileIds([]);
           setSelectedItems([]);
@@ -407,7 +407,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
           <ToolBar onNavigate={onNavigate} />
         </div>
         <div className="flex-grow">
-          {viewMode === 'list' && (
+          {viewMode === "list" && (
             <FileList
               onNavigate={handleFileListNavigate}
               onSelect={handleFileListSelect}
@@ -415,7 +415,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
               onMove={onMove}
             />
           )}
-          {viewMode === 'grid' && (
+          {viewMode === "grid" && (
             <FileGrid
               onNavigate={handleFileListNavigate}
               onSelect={handleFileListSelect}
@@ -424,7 +424,6 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
             />
           )}
         </div>
-
         <DropZone active={isDragging} />
 
         {!disabledContextMenu && (
