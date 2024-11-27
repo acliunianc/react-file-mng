@@ -150,14 +150,15 @@ const FileGrid: React.FC<FileGridProps> = ({
               <div className="w-full truncate">
                 <input
                   autoFocus
-                  onBlur={(e) => {
-                    // 触发通知
-                    onRename?.(file, e.target.value);
-                  }}
                   onKeyDown={(e) => {
-                    // 回车失去焦点
-                    if (e.key === "Enter") {
-                      (e.target as HTMLInputElement)?.blur();
+                    const target = e.target as HTMLInputElement;
+                    if (e.key === 'Enter') {
+                      // 触发通知
+                      onRename?.(file, target.value);
+                      target.blur();
+                    } else if (e.key === 'Escape') {
+                      onRename?.(file, file.name);
+                      target.blur();
                     }
                   }}
                   type="text"
