@@ -1,12 +1,7 @@
-import React, {
-  ReactNode,
-  createContext,
-  useCallback,
-  useContext,
-} from 'react';
-import { FileManagerContext } from '../context/FileManagerContext';
-import { useGlobalShortcuts } from '../hooks/useGlobalShortcuts';
-import { FileItem } from '../types';
+import React, { ReactNode, useCallback, useContext } from "react";
+import { FileManagerContext } from "../context/FileManagerContext";
+import { useGlobalShortcuts } from "../hooks/useGlobalShortcuts";
+import { FileItem } from "../types";
 
 export interface Actions {
   onClose?: () => void;
@@ -23,12 +18,12 @@ export interface Actions {
 export type MenuItem = {
   key: string;
   label: ReactNode;
-  type?: 'item';
+  type?: "item";
   onClick?: (
     selectedItems: FileItem[],
     currentFolder: FileItem,
     item: MenuItem,
-    actions: Actions,
+    actions: Actions
   ) => void;
   disabled?: boolean;
   shortcut?: string;
@@ -36,7 +31,7 @@ export type MenuItem = {
 };
 
 export type SeparatorItem = {
-  type: 'separator';
+  type: "separator";
 };
 
 export type MenuItems = (MenuItem | SeparatorItem)[];
@@ -47,8 +42,6 @@ export interface ContextMenuProps extends Actions {
   canPaste: boolean;
   items?: MenuItems;
 }
-
-export const ContextMenuContext = createContext<Actions | null>(null);
 
 export const ContextMenu: React.FC<ContextMenuProps> = ({
   position,
@@ -75,58 +68,58 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
 
   const defaultMenuItems: MenuItems = [
     {
-      key: '_copy',
-      label: '复制',
+      key: "_copy",
+      label: "复制",
       onClick: onCopy,
       disabled: selectedItems.length === 0,
-      shortcut: 'Ctrl+C',
+      shortcut: "Ctrl+C",
     },
     {
-      key: '_cut',
-      label: '剪切',
+      key: "_cut",
+      label: "剪切",
       onClick: onCut,
       disabled: selectedItems.length === 0,
-      shortcut: 'Ctrl+X',
+      shortcut: "Ctrl+X",
     },
     {
-      key: '_paste',
-      label: '粘贴',
+      key: "_paste",
+      label: "粘贴",
       onClick: onPaste,
       disabled: !canPaste,
-      shortcut: 'Ctrl+V',
+      shortcut: "Ctrl+V",
     },
-    { type: 'separator' },
+    { type: "separator" },
     {
-      key: '_delete',
-      label: '删除',
+      key: "_delete",
+      label: "删除",
       onClick: onDelete,
       disabled: selectedItems.length === 0,
-      shortcut: 'Delete',
+      shortcut: "Delete",
       danger: true,
     },
     {
-      key: '_rename',
-      label: '重命名',
+      key: "_rename",
+      label: "重命名",
       onClick: onRename,
       disabled: selectedItems.length !== 1,
-      shortcut: 'F2',
+      shortcut: "F2",
     },
     {
-      key: '_download',
-      label: '下载',
+      key: "_download",
+      label: "下载",
       onClick: onDownload,
       disabled:
-        selectedItems.length !== 1 || selectedItems[0]?.type === 'folder',
+        selectedItems.length !== 1 || selectedItems[0]?.type === "folder",
     },
     {
-      key: '_upload',
-      label: '上传',
+      key: "_upload",
+      label: "上传",
       onClick: onUpload,
     },
-    { type: 'separator' },
+    { type: "separator" },
     {
-      key: '_createFolder',
-      label: '新建文件夹',
+      key: "_createFolder",
+      label: "新建文件夹",
       onClick: onCreateFolder,
       // shortcut: 'Ctrl+Shift+N',
     },
@@ -134,87 +127,87 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
 
   const menuItems: MenuItems = items ?? defaultMenuItems;
 
-  useGlobalShortcuts([
-    {
-      key: '_selectAll',
-      label: '全选',
-      onClick: handleContextMenuSelectAll,
-      shortcut: 'Ctrl+A',
+  useGlobalShortcuts({
+    items: [
+      {
+        key: "_selectAll",
+        label: "全选",
+        onClick: handleContextMenuSelectAll,
+        shortcut: "Ctrl+A",
+      },
+      ...menuItems,
+    ],
+    actions: {
+      onClose,
+      onCopy,
+      onCut,
+      onPaste,
+      onDelete,
+      onRename,
+      onDownload,
+      onUpload,
+      onCreateFolder,
     },
-    ...menuItems,
-  ]);
+    enabled: true,
+  });
 
   if (!position) return null;
 
   return (
-    <ContextMenuContext.Provider
-      value={{
-        onClose,
-        onCopy,
-        onCut,
-        onPaste,
-        onDelete,
-        onRename,
-        onDownload,
-        onUpload,
-        onCreateFolder,
+    <div
+      className="fixed z-50 bg-white rounded-lg shadow-lg py-1 min-w-52"
+      style={{
+        left: position.x,
+        top: position.y,
       }}
     >
-      <div
-        className="fixed z-50 bg-white rounded-lg shadow-lg py-1 min-w-52"
-        style={{
-          left: position.x,
-          top: position.y,
-        }}
-      >
-        <div className="w-full px-4 py-1.5 text-left flex items-center justify-between ">
-          选中{selectedItems.length}项
-        </div>
-        <div className="h-px bg-gray-200 my-1"></div>
-        {menuItems.map((item, index) =>
-          'type' in item ? (
-            <div key={`_split__${index}`} className="h-px bg-gray-200 my-1" />
-          ) : (
-            <button
-              type="button"
-              key={item.key}
-              className={`
+      <div className="w-full px-4 py-1.5 text-left flex items-center justify-between ">
+        选中{selectedItems.length}项
+      </div>
+      <div className="h-px bg-gray-200 my-1"></div>
+      {menuItems.map((item, index) =>
+        "type" in item ? (
+          <div key={`_split__${index}`} className="h-px bg-gray-200 my-1" />
+        ) : (
+          <button
+            type="button"
+            key={item.key}
+            className={`
                 w-full px-4 py-1.5 text-left flex items-center justify-between
-                ${item.danger ? 'text-red-600' : 'text-gray-700'}
+                ${item.danger ? "text-red-600" : "text-gray-700"}
                 ${
                   item.disabled
-                    ? '!text-gray-400 cursor-not-allowed'
-                    : 'hover:bg-gray-100'
+                    ? "!text-gray-400 cursor-not-allowed"
+                    : "hover:bg-gray-100"
                 }
               `}
-              onClick={() => {
-                if (!item.disabled) {
-                  item.onClick?.(selectedItems, currentFolder, item, {
-                    onClose,
-                    onCopy,
-                    onCut,
-                    onPaste,
-                    onDelete,
-                    onRename,
-                    onDownload,
-                    onUpload,
-                    onCreateFolder,
-                  });
-                  onClose?.();
-                }
-              }}
-              disabled={item.disabled}
-            >
-              <span className="flex-grow">{item.label}</span>
-              {item.shortcut && (
-                <span className="flex-shrink-0 text-xs text-gray-400 ml-4">
-                  {item.shortcut}
-                </span>
-              )}
-            </button>
-          ),
-        )}
-      </div>
-    </ContextMenuContext.Provider>
+            onClick={() => {
+              if (!item.disabled) {
+                item.onClick?.(selectedItems, currentFolder, item, {
+                  onClose,
+                  onCopy,
+                  onCut,
+                  onPaste,
+                  onDelete,
+                  onRename,
+                  onDownload,
+                  onUpload,
+                  onCreateFolder,
+                });
+                onClose?.();
+              }
+            }}
+            disabled={item.disabled}
+          >
+            <span className="flex-grow">{item.label}</span>
+            {item.shortcut && (
+              <span className="flex-shrink-0 text-xs text-gray-400 ml-4">
+                {item.shortcut}
+              </span>
+            )}
+          </button>
+        )
+      )}
+    </div>
   );
 };
