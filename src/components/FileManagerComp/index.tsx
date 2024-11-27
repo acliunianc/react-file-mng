@@ -95,6 +95,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   useEffect(() => {
     const cur = deepFind(realFiles, (item) => item.id === openedKey);
     if (cur) {
+      setPath(cur.path)
       setCurrentFolder({
         ...cur,
         children: cur.children || [],
