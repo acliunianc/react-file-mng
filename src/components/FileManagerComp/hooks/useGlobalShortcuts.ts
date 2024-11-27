@@ -1,112 +1,74 @@
-import { useCallback, useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import type { MenuItems } from "../ContextMenu";
 
-interface UseGlobalShortcutsProps {
-  dom?: HTMLElement | null;
-  onRename: () => void;
-  onDelete: () => void;
-  onCopy: () => void;
-  onCut: () => void;
-  onPaste: () => void;
-  onCreateFolder: () => void;
-  onSelectAll: () => void;
-  disabled?: boolean;
-}
+// 辅助函数：从键盘事件生成快捷键字符串
+const getShortcutFromEvent = (e: KeyboardEvent): string => {
+  const parts: string[] = [];
 
-export const useGlobalShortcuts = ({
-  dom,
-  onRename,
-  onDelete,
-  onCopy,
-  onCut,
-  onPaste,
-  onCreateFolder,
-  onSelectAll,
-  disabled = false,
-}: UseGlobalShortcutsProps) => {
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      // 如果在输入框中，不处理快捷键
-      if (
-        event.target instanceof HTMLInputElement ||
-        event.target instanceof HTMLTextAreaElement ||
-        disabled
-      ) {
-        return;
-      }
+  if (e.ctrlKey) parts.push("ctrl");
+  if (e.shiftKey) parts.push("shift");
+  if (e.altKey) parts.push("alt");
 
-      const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
-      const modifier = isMac ? event.metaKey : event.ctrlKey;
+  // 特殊键处理
+  const key = e.key.toLowerCase();
+  if (key !== "control" && key !== "shift" && key !== "alt") {
+    parts.push(key);
+  }
 
-      // 阻止浏览器默认行为
-      const preventDefault = () => {
-        event.preventDefault();
-        event.stopPropagation();
-      };
+  return parts.sort().join("+");
+};
 
-      // 检查是否按下了修饰键
-      if (modifier) {
-        switch (event.key.toLowerCase()) {
-          case "c": // Ctrl/Cmd + C
-            preventDefault();
-            onCopy();
-            break;
+// 辅助函数：标准化快捷键格式
+const normalizeShortcut = (shortcut: string): string => {
+  return shortcut
+    .split("+")
+    .map((key) => key.trim().toLowerCase())
+    .sort()
+    .join("+");
+};
 
-          case "x": // Ctrl/Cmd + X
-            preventDefault();
-            onCut();
-            break;
+export const useGlobalShortcuts = (
+  menuItems: MenuItems = [],
+  enabled: boolean = true
+) => {
+  // 合并并提取所有有效的快捷键配置
+  const shortcutMap = useMemo(() => {
+    const map = new Map<string, (...args: any[]) => void>();
 
-          case "v": // Ctrl/Cmd + V
-            preventDefault();
-            onPaste();
-            break;
+    // 处理菜单项并提取快捷键
+    const processMenuItems = (items: MenuItems) => {
+      items.forEach((item) => {
+        if (item.type === "separator") return;
 
-          case "a": // Ctrl/Cmd + A
-            preventDefault();
-            onSelectAll();
-            break;
-
-          case "n": // Ctrl/Cmd + N
-            preventDefault();
-            onCreateFolder();
-            break;
+        const { shortcut, onClick, disabled } = item;
+        if (shortcut && onClick && !disabled) {
+          // 标准化快捷键格式
+          const normalizedShortcut = normalizeShortcut(shortcut);
+          map.set(normalizedShortcut, onClick);
         }
-      } else {
-        // 不需要修饰键的快捷键
-        switch (event.key) {
-          case "F2": // F2
-            preventDefault();
-            onRename();
-            break;
+      });
+    };
 
-          case "Delete": // Delete
-            preventDefault();
-            onDelete();
-            break;
-        }
-      }
-    },
-    [
-      onRename,
-      onDelete,
-      onCopy,
-      onCut,
-      onPaste,
-      onCreateFolder,
-      onSelectAll,
-      disabled,
-    ]
-  );
+    // 处理单项
+    processMenuItems(menuItems);
+
+    return map;
+  }, [menuItems]);
 
   useEffect(() => {
-    // 捕获状态下触发事件监听器
-    const realDom = dom || document;
+    if (!enabled) return;
 
-    // @ts-ignore
-    realDom?.addEventListener("keydown", handleKeyDown);
-    return () => {
-      // @ts-ignore
-      realDom?.removeEventListener("keydown", handleKeyDown);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const shortcut = getShortcutFromEvent(e);
+      const action = shortcutMap.get(shortcut);
+
+      if (action) {
+        e.preventDefault();
+        action();
+      }
     };
-  }, [handleKeyDown, dom]);
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [enabled, shortcutMap]);
 };

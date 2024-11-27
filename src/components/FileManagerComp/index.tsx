@@ -8,7 +8,6 @@ import FileList from "./FileList";
 import ToolBar from "./ToolBar";
 import { FileManagerContext } from "./context/FileManagerContext";
 import { useFileDrop } from "./hooks/useFileDrop";
-import { useGlobalShortcuts } from "./hooks/useGlobalShortcuts";
 import type { FileItem, ViewMode } from "./types";
 
 export type HistoryProp = {
@@ -275,23 +274,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   const handleContextMenuCreateFolder = useCallback(async () => {
     await onCreateFolder?.(currentFolder);
   }, [onCreateFolder, currentFolder]);
-  const handleContextMenuSelectAll = useCallback(() => {
-    setSelectedFileIds((currentFolder.children || [])?.map((it) => it.id));
-    setSelectedItems(currentFolder.children || []);
-  }, [currentFolder]);
   // #endregion
-
-  useGlobalShortcuts({
-    dom: fileManagerRef.current,
-    onCopy: handleContextMenuCopy,
-    onCreateFolder: handleContextMenuCreateFolder,
-    onCut: handleContextMenuCut,
-    onDelete: handleContextMenuDelete,
-    onRename: handleContextMenuRename,
-    onPaste: handleContextMenuPaste,
-    onSelectAll: handleContextMenuSelectAll,
-    disabled: disabledContextMenu,
-  });
 
   // ------------------------------------------
   // Drag & Drop
@@ -342,7 +325,6 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
     },
     []
   );
-
   // 处理文件拖拽
   const handleFileDrop = useCallback(
     async (items: DataTransferItem[]) => {

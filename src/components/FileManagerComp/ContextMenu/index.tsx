@@ -1,10 +1,12 @@
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode, useCallback, useContext } from "react";
 import { FileManagerContext } from "../context/FileManagerContext";
+import { useGlobalShortcuts } from "../hooks/useGlobalShortcuts";
 import { FileItem } from "../types";
 
-type MenuItem = {
+export type MenuItem = {
   key: string;
   label: ReactNode;
+  type?: "item";
   onClick?: (
     selectedItems: FileItem[],
     currentFolder: FileItem,
@@ -26,15 +28,17 @@ type MenuItem = {
   danger?: boolean;
 };
 
-type SeparatorItem = {
+export type SeparatorItem = {
   type: "separator";
 };
+
+export type MenuItems = (MenuItem | SeparatorItem)[];
 
 export interface ContextMenuProps {
   position: { x: number; y: number } | null;
   selectedItems: FileItem[];
   canPaste: boolean;
-  items?: (MenuItem | SeparatorItem)[];
+  items?: MenuItems;
   onClose?: () => void;
   onCopy?: () => void;
   onCut?: () => void;
@@ -61,11 +65,15 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   onUpload,
   onCreateFolder,
 }) => {
-  const { currentFolder } = useContext(FileManagerContext);
+  const { currentFolder, setSelectedFileIds, setSelectedItems } =
+    useContext(FileManagerContext);
 
-  if (!position) return null;
+  const handleContextMenuSelectAll = useCallback(() => {
+    setSelectedFileIds((currentFolder.children || [])?.map((it) => it.id));
+    setSelectedItems(currentFolder.children || []);
+  }, [currentFolder, setSelectedFileIds, setSelectedItems]);
 
-  const defaultMenuItems: (MenuItem | SeparatorItem)[] = [
+  const defaultMenuItems: MenuItems = [
     {
       key: "_copy",
       label: "复制",
@@ -111,8 +119,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
         selectedItems.length !== 1 || selectedItems[0]?.type === "folder",
     },
     {
-      key: '_upload',
-      label: '上传',
+      key: "_upload",
+      label: "上传",
       onClick: onUpload,
     },
     { type: "separator" },
@@ -124,11 +132,25 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     },
   ];
 
-  const menuItems: (MenuItem | SeparatorItem)[] = items ?? defaultMenuItems;
+  const menuItems: MenuItems = items ?? defaultMenuItems;
+
+  useGlobalShortcuts(
+    [
+      {
+        key: "_selectAll",
+        label: "全选",
+        onClick: handleContextMenuSelectAll,
+        shortcut: "Ctrl+A",
+      },
+      ...menuItems,
+    ],
+    true
+  );
+
+  if (!position) return null;
 
   return (
     <>
-      {/* <div className="fixed inset-0 z-50" onClick={onClose} /> */}
       <div
         className="fixed z-50 bg-white rounded-lg shadow-lg py-1 min-w-52"
         style={{
