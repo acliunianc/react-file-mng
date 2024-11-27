@@ -198,6 +198,9 @@ const FileList: React.FC<FileListProps> = ({
               <div className="flex-1 ps-2 pe-12 truncate">
                 <input
                   autoFocus
+                  onBlur={() => {
+                    onRename?.(file, file.name);
+                  }}
                   onKeyDown={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (e.key === "Enter") {
