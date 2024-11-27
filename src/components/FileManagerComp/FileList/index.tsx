@@ -1,4 +1,4 @@
-import { deepFind, formatByte } from "../../../utils";
+import { formatByte } from "../../../utils";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -6,7 +6,7 @@ import {
   FolderIcon,
 } from "@heroicons/react/24/outline";
 import moment from "moment";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { FileManagerContext } from "../context/FileManagerContext";
 import { useDragAndDrop } from "../hooks/useDragAndDrop";
 import { FileItem, SortConfig } from "../types";
@@ -26,19 +26,13 @@ const FileList: React.FC<FileListProps> = ({
   onRename,
   onMove,
 }) => {
-  const [sortConfig, setSortConfig] = useState<SortConfig>({
-    field: "name",
-    direction: "asc",
-  });
-
   const {
     setContextMenu,
     currentFolder,
     cutSelectedItems,
     selectedItems,
-    openedKey,
-    realFiles,
-    setCurrentFolder,
+    sortConfig,
+    setSortConfig,
   } = useContext(FileManagerContext);
 
   const cutSelectedIds = useMemo(
@@ -56,51 +50,6 @@ const FileList: React.FC<FileListProps> = ({
     null
   );
 
-  const sortFiles = (files: FileItem[], _sortConfig: SortConfig) => {
-    // 分离文件夹和文件
-    const folders = files.filter((file) => file.type === "folder");
-    const regularFiles = files.filter((file) => file.type !== "folder");
-
-    const direction = _sortConfig.direction === "asc" ? 1 : -1;
-
-    const ext = (field: string) => {
-      return field.split(".").pop()?.toLowerCase() || "";
-    };
-
-    // 排序函数
-    const compareItems = (a: FileItem, b: FileItem): number => {
-      switch (_sortConfig.field) {
-        case "name":
-          return a.name.localeCompare(b.name) * direction;
-
-        case "type":
-          return ext(a.name) === ext(b.name)
-            ? a.name.localeCompare(b.name) * direction
-            : ext(a.name).localeCompare(ext(b.name)) * direction;
-
-        case "size":
-          return a.size === b.size
-            ? a.name.localeCompare(b.name)
-            : (a.size - b.size) * direction;
-
-        case "modifiedDate":
-          return a.modifiedDate === b.modifiedDate
-            ? a.name.localeCompare(b.name)
-            : (Number(a.modifiedDate) - Number(b.modifiedDate)) * direction;
-
-        default:
-          return 0;
-      }
-    };
-
-    // 分别对文件夹和文件进行排序
-    const sortedFolders = [...folders].sort(compareItems);
-    const sortedFiles = [...regularFiles].sort(compareItems);
-
-    // 合并排序后的文件夹和文件
-    return [...sortedFolders, ...sortedFiles];
-  };
-
   const handleSort = async (field: SortField) => {
     const newSortConfig: SortConfig = {
       field,
@@ -111,15 +60,6 @@ const FileList: React.FC<FileListProps> = ({
     };
 
     setSortConfig(newSortConfig);
-
-    const newFiles = sortFiles(currentFolder.children || [], newSortConfig);
-
-    setCurrentFolder((prev) => {
-      return {
-        ...prev,
-        children: newFiles,
-      };
-    });
   };
 
   const renderSortIcon = (field: SortField) => {
@@ -197,16 +137,6 @@ const FileList: React.FC<FileListProps> = ({
     }
   };
 
-  useEffect(() => {
-    const cur = deepFind(realFiles, (item) => item.id === openedKey);
-    if (cur) {
-      setCurrentFolder({
-        ...cur,
-        children: sortFiles(cur.children || [], sortConfig),
-      });
-    }
-  }, [openedKey, realFiles, sortConfig, setCurrentFolder]);
-
   return (
     // 阻止冒泡传递
     <div className={`w-full h-full flex flex-col`}>
@@ -270,11 +200,11 @@ const FileList: React.FC<FileListProps> = ({
                   autoFocus
                   onKeyDown={(e) => {
                     const target = e.target as HTMLInputElement;
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       // 触发通知
                       onRename?.(file, target.value);
                       target.blur();
-                    } else if (e.key === 'Escape') {
+                    } else if (e.key === "Escape") {
                       onRename?.(file, file.name);
                       target.blur();
                     }

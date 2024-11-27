@@ -1,5 +1,14 @@
 import { deepFind } from "../../utils";
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FC,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { v4 } from "uuid";
 import { ContextMenu, ContextMenuProps } from "./ContextMenu";
 import DropZone from "./DropZone";
@@ -8,7 +17,7 @@ import FileList from "./FileList";
 import ToolBar from "./ToolBar";
 import { FileManagerContext } from "./context/FileManagerContext";
 import { useFileDrop } from "./hooks/useFileDrop";
-import type { FileItem, ViewMode } from "./types";
+import type { FileItem, SortConfig, ViewMode } from "./types";
 
 export type HistoryProp = {
   path: string;
@@ -31,6 +40,7 @@ type FileManagerCompProps = {
   openedKey: string;
   defaultViewMode?: ViewMode;
   disabledContextMenu?: boolean;
+  actionRef?: MutableRefObject<any>;
   contextMenuItems?: ContextMenuProps["items"];
   onNavigate?: (file: FileItem | null, path: string) => Promise<any>;
   onPaste?: (to: FileItem, files: FileItem[]) => Promise<any>;
@@ -43,10 +53,11 @@ type FileManagerCompProps = {
 };
 const FileManagerComp: FC<FileManagerCompProps> = ({
   files,
-  openedKey,
   defaultViewMode = "list",
+  openedKey,
   disabledContextMenu = false,
   contextMenuItems,
+  actionRef,
   onNavigate,
   onPaste,
   onDelete,
@@ -72,6 +83,11 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   const [path, setPath] = useState("/");
   const [realFiles, setRealFiles] = useState<FileItem[]>([]);
 
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    field: "name",
+    direction: "asc",
+  });
+
   const root = useMemo<FileItem>(
     () => ({
       id: "0",
@@ -91,17 +107,65 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   } | null>(null);
   const [currentFolder, setCurrentFolder] = useState<FileItem>(() => root);
 
-  // openedKey 改变时刷新当前显示文件夹
+  const sortFiles = useCallback(
+    (files: FileItem[]) => {
+      // 分离文件夹和文件
+      const folders = files.filter((file) => file.type === "folder");
+      const regularFiles = files.filter((file) => file.type !== "folder");
+
+      const direction = sortConfig.direction === "asc" ? 1 : -1;
+
+      const ext = (field: string) => {
+        return field.split(".").pop()?.toLowerCase() || "";
+      };
+
+      // 排序函数
+      const compareItems = (a: FileItem, b: FileItem): number => {
+        switch (sortConfig.field) {
+          case "name":
+            return a.name.localeCompare(b.name) * direction;
+
+          case "type":
+            return ext(a.name) === ext(b.name)
+              ? a.name.localeCompare(b.name) * direction
+              : ext(a.name).localeCompare(ext(b.name)) * direction;
+
+          case "size":
+            return a.size === b.size
+              ? a.name.localeCompare(b.name)
+              : (a.size - b.size) * direction;
+
+          case "modifiedDate":
+            return a.modifiedDate === b.modifiedDate
+              ? a.name.localeCompare(b.name)
+              : (Number(a.modifiedDate) - Number(b.modifiedDate)) * direction;
+
+          default:
+            return 0;
+        }
+      };
+
+      // 分别对文件夹和文件进行排序
+      const sortedFolders = [...folders].sort(compareItems);
+      const sortedFiles = [...regularFiles].sort(compareItems);
+
+      // 合并排序后的文件夹和文件
+      return [...sortedFolders, ...sortedFiles];
+    },
+    [sortConfig]
+  );
+
+  // openedKey 改变时刷新当前显示文件夹，显示openedKey对应的地址
   useEffect(() => {
     const cur = deepFind(realFiles, (item) => item.id === openedKey);
     if (cur) {
-      setPath(cur.path)
+      setPath(cur.path);
       setCurrentFolder({
         ...cur,
-        children: cur.children || [],
+        children: sortFiles(cur.children || []),
       });
     }
-  }, [openedKey, realFiles]);
+  }, [openedKey, realFiles, sortConfig, sortFiles]);
 
   useEffect(() => {
     const deepMap = (
@@ -159,18 +223,24 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   // #region
   const handleFileListNavigate = useCallback(
     async (file: FileItem) => {
-      // 双击进行跳转时，根据当前histroy找到索引，把索引后面的历史纪录全部删除，替换成当前点击的路径，并记录history
-      await onNavigate?.(file, file.path);
-      const index = getHistoryIndex();
+      try {
+        // 当Promise成功时再进行跳转
+        // 双击进行跳转时，根据当前histroy找到索引，把索引后面的历史纪录全部删除，替换成当前点击的路径，并记录history
+        await onNavigate?.(file, file.path);
+        const index = getHistoryIndex();
 
-      const newHistory = {
-        path: file.path,
-        id: v4(),
-        record: file,
-      };
-      setHistoryStack([...historyStack.slice(0, index + 1), newHistory]);
-      setCurrentHistory(newHistory);
-      setPath(file.path);
+        const newHistory = {
+          path: file.path,
+          id: v4(),
+          record: file,
+        };
+        setHistoryStack([...historyStack.slice(0, index + 1), newHistory]);
+        setCurrentHistory(newHistory);
+        setPath(file.path);
+      } catch (error) {
+        // 失败暂不进行处理
+        console.log(error);
+      }
     },
     [getHistoryIndex, historyStack, onNavigate]
   );
@@ -183,14 +253,14 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       // 清理所有的editing状态
       setCurrentFolder((prev) => ({
         ...prev,
-        children: (prev.children || []).map((it) => {
+        children: sortFiles(prev.children || []).map((it) => {
           it.editing = false;
           return it;
         }),
       }));
       await onRename?.(file, value);
     },
-    [onRename]
+    [onRename, sortFiles]
   );
   // #endregion
 
@@ -236,7 +306,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
     setCurrentFolder((prev) => {
       return {
         ...prev,
-        children: (prev.children || []).map((it) => {
+        children: sortFiles(prev.children || []).map((it) => {
           if (selectedFileIds.includes(it.id)) {
             it.editing = true;
           }
@@ -244,7 +314,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
         }),
       };
     });
-  }, [selectedFileIds]);
+  }, [selectedFileIds, sortFiles]);
   const handleContextMenuDownload = useCallback(() => {
     onDownload?.(selectedItems[0]);
   }, [onDownload, selectedItems]);
@@ -326,7 +396,55 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
     },
     []
   );
+
   // 处理文件拖拽
+  // const handleFileDrop = useCallback(
+  //   async (items: DataTransferItem[]) => {
+  //     const filesWithPath: FileWithPath[] = [];
+
+  //     const currentFolderPath = currentFolder.path.endsWith('/')
+  //       ? currentFolder.path
+  //       : currentFolder.path + '/';
+  //     const entryList = [];
+
+  //     // 为什么一个循环解决不了问题?
+  //     // for (const item of items) {
+  //     //   const entry = item.webkitGetAsEntry?.(); // 尝试获取 FileSystemEntry
+  //     //   if (entry) {
+  //     //     const entryFiles = await processEntry(entry);
+  //     //     filesWithPath.push(
+  //     //       ...entryFiles.map((item) => ({
+  //     //         ...item,
+  //     //         path: currentFolderPath + item.path.slice(1),
+  //     //       })),
+  //     //     );
+  //     //   }
+  //     // }
+
+  //     for (const item of items) {
+  //       const entry = item.webkitGetAsEntry?.(); // 尝试获取 FileSystemEntry
+  //       if (!entry) continue;
+  //       entryList.push(entry);
+  //     }
+
+  //     for (const entry of entryList) {
+  //       const entryFiles = await processEntry(entry);
+  //       filesWithPath.push(
+  //         ...entryFiles.map((item) => ({
+  //           ...item,
+  //           path: currentFolderPath + item.path.slice(1),
+  //         })),
+  //       );
+  //     }
+  //     console.log('filesWithPath', filesWithPath);
+
+  //     if (filesWithPath.length > 0) {
+  //       onUpload?.(currentFolder, filesWithPath);
+  //     }
+  //   },
+  //   [onUpload, processEntry, currentFolder],
+  // );
+
   const handleFileDrop = useCallback(
     async (items: DataTransferItem[]) => {
       const entryList: FileSystemEntry[] = [];
@@ -334,20 +452,6 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       const currentFolderPath = currentFolder.path.endsWith("/")
         ? currentFolder.path
         : currentFolder.path + "/";
-
-      // 为什么一个循环解决不了问题?
-      // for (const item of items) {
-      //   const entry = item.webkitGetAsEntry?.();
-      //   if (entry) { // 只能拿到第一个文件, 后续所有entry都是null
-      //     const entryFiles = await processEntry(entry);
-      //     filesWithPath.push(
-      //       ...entryFiles.map((item) => ({
-      //         ...item,
-      //         path: currentFolderPath + item.path.slice(1),
-      //       })),
-      //     );
-      //   }
-      // }
 
       // 收集所有 entry
       for (const item of items) {
@@ -413,6 +517,10 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
 
       openedKey,
 
+      sortConfig,
+      setSortConfig,
+      sortFiles,
+
       realFiles,
       root,
       flatRealFiles,
@@ -436,7 +544,22 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
     getHistoryIndex,
     currentFolder,
     openedKey,
+    sortConfig,
+    sortFiles,
   ]);
+
+  useImperativeHandle(actionRef, () => {
+    return {
+      getSelectedItems: () => selectedItems, // 获取选中的文件
+      getSelectedFileIds: () => selectedFileIds, // 获取选中的文件id
+      getCopySelectedItems: () => copySelectedItems, // 获取复制的文件
+      getCutSelectedItems: () => cutSelectedItems, // 获取剪切的文件
+      getViewMode: () => viewMode, // 获取视图
+      getPath: () => path, // 获取路径
+      getRealFiles: () => realFiles, // 获取真实使用的文件列表
+      getFlatRealFiles: () => flatRealFiles, // 获取被打平的真实使用的文件列表
+    };
+  });
 
   return (
     <FileManagerContext.Provider value={fileManagerContextData}>

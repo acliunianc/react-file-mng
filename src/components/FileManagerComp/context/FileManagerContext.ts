@@ -1,6 +1,6 @@
 import { createContext } from "react";
 import { FileItemWithFrom, HistoryProp } from "..";
-import { FileItem, ViewMode } from "../types";
+import { FileItem, SortConfig, ViewMode } from "../types";
 
 interface FileManagerContextProps {
   viewMode: ViewMode;
@@ -43,6 +43,12 @@ interface FileManagerContextProps {
   >;
 
   openedKey: string;
+
+  sortConfig: SortConfig;
+  setSortConfig: React.Dispatch<
+    React.SetStateAction<FileManagerContextProps["sortConfig"]>
+  >;
+  sortFiles: (files: FileItem[]) => FileItem[];
 
   realFiles: FileItem[];
   root: FileItem;
