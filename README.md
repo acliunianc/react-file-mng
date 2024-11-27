@@ -47,11 +47,11 @@ npm install react-file-mng
 ## Usage
 
 ```tsx
-import { FileManager } from 'react-file-mng';
-import 'react-file-mng/index.css';
-import { ReactNode, useState } from 'react';
+import { FileManager } from "react-file-mng";
+import "react-file-mng/index.css";
+import { ReactNode, useState } from "react";
 
-type FileType = 'file' | 'folder';
+type FileType = "file" | "folder";
 interface FileItem {
   id: string;
   name: string;
@@ -68,192 +68,192 @@ interface FileItem {
 
 const files: FileItem[] = [
   {
-    id: '1',
-    name: 'Documents',
-    path: '/Documents',
-    type: 'folder',
+    id: "1",
+    name: "Documents",
+    path: "/Documents",
+    type: "folder",
     size: 0,
-    modifiedDate: new Date('2024-03-15').valueOf(),
+    modifiedDate: new Date("2024-03-15").valueOf(),
     children: [
       {
-        id: '1-1',
-        name: 'Project Proposal.docx',
-        path: '/Documents/Project Proposal.docx',
-        type: 'file',
+        id: "1-1",
+        name: "Project Proposal.docx",
+        path: "/Documents/Project Proposal.docx",
+        type: "file",
         size: 2458000,
-        modifiedDate: new Date('2024-03-14').valueOf(),
-        extension: 'docx',
+        modifiedDate: new Date("2024-03-14").valueOf(),
+        extension: "docx",
       },
       {
-        id: '1-2',
-        name: 'Budget 2024',
-        path: '/Documents/Budget 2024',
-        type: 'folder',
+        id: "1-2",
+        name: "Budget 2024",
+        path: "/Documents/Budget 2024",
+        type: "folder",
         size: 0,
-        modifiedDate: new Date('2024-03-10').valueOf(),
+        modifiedDate: new Date("2024-03-10").valueOf(),
         children: [
           {
-            id: '1-2-1',
-            name: 'Q1 Report.xlsx',
-            path: '/Documents/Budget 2024/Q1 Report.xlsx',
-            type: 'file',
+            id: "1-2-1",
+            name: "Q1 Report.xlsx",
+            path: "/Documents/Budget 2024/Q1 Report.xlsx",
+            type: "file",
             size: 1548000,
-            modifiedDate: new Date('2024-03-10').valueOf(),
-            extension: 'xlsx',
+            modifiedDate: new Date("2024-03-10").valueOf(),
+            extension: "xlsx",
           },
           {
-            id: '1-2-2',
-            name: 'Q2 Forecast.xlsx',
-            path: '/Documents/Budget 2024/Q2 Forecast.xlsx',
-            type: 'file',
+            id: "1-2-2",
+            name: "Q2 Forecast.xlsx",
+            path: "/Documents/Budget 2024/Q2 Forecast.xlsx",
+            type: "file",
             size: 1342000,
-            modifiedDate: new Date('2024-03-09').valueOf(),
-            extension: 'xlsx',
+            modifiedDate: new Date("2024-03-09").valueOf(),
+            extension: "xlsx",
           },
         ],
       },
     ],
   },
   {
-    id: '2',
-    name: 'Images',
-    path: '/Images',
-    type: 'folder',
+    id: "2",
+    name: "Images",
+    path: "/Images",
+    type: "folder",
     size: 0,
-    modifiedDate: new Date('2024-03-16').valueOf(),
+    modifiedDate: new Date("2024-03-16").valueOf(),
     children: [
       {
-        id: '2-1',
-        name: 'Product Photos',
-        path: '/Images/Product Photos',
-        type: 'folder',
+        id: "2-1",
+        name: "Product Photos",
+        path: "/Images/Product Photos",
+        type: "folder",
         size: 0,
-        modifiedDate: new Date('2024-03-16').valueOf(),
+        modifiedDate: new Date("2024-03-16").valueOf(),
         children: [
           {
-            id: '2-1-1',
-            name: 'product-001.jpg',
-            path: '/Images/Product Photos/product-001.jpg',
-            type: 'file',
+            id: "2-1-1",
+            name: "product-001.jpg",
+            path: "/Images/Product Photos/product-001.jpg",
+            type: "file",
             size: 3245000,
-            modifiedDate: new Date('2024-03-16').valueOf(),
-            extension: 'jpg',
+            modifiedDate: new Date("2024-03-16").valueOf(),
+            extension: "jpg",
           },
           {
-            id: '2-1-2',
-            name: 'product-002.jpg',
-            path: '/Images/Product Photos/product-002.jpg',
-            type: 'file',
+            id: "2-1-2",
+            name: "product-002.jpg",
+            path: "/Images/Product Photos/product-002.jpg",
+            type: "file",
             size: 2845000,
-            modifiedDate: new Date('2024-03-16').valueOf(),
-            extension: 'jpg',
+            modifiedDate: new Date("2024-03-16").valueOf(),
+            extension: "jpg",
           },
         ],
       },
       {
-        id: '2-2',
-        name: 'banner.png',
-        path: '/Images/banner.png',
-        type: 'file',
+        id: "2-2",
+        name: "banner.png",
+        path: "/Images/banner.png",
+        type: "file",
         size: 4562000,
-        modifiedDate: new Date('2024-03-15').valueOf(),
-        extension: 'png',
+        modifiedDate: new Date("2024-03-15").valueOf(),
+        extension: "png",
         previewImage:
-          'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
+          "https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg",
       },
     ],
   },
   {
-    id: '3',
-    name: 'Projects',
-    path: '/Projects',
-    type: 'folder',
+    id: "3",
+    name: "Projects",
+    path: "/Projects",
+    type: "folder",
     size: 0,
-    modifiedDate: new Date('2024-03-17').valueOf(),
+    modifiedDate: new Date("2024-03-17").valueOf(),
     children: [
       {
-        id: '3-1',
-        name: 'Backend',
-        path: '/Projects/Backend',
-        type: 'folder',
+        id: "3-1",
+        name: "Backend",
+        path: "/Projects/Backend",
+        type: "folder",
         size: 0,
-        modifiedDate: new Date('2024-03-17').valueOf(),
+        modifiedDate: new Date("2024-03-17").valueOf(),
         children: [
           {
-            id: '3-1-1',
-            name: 'source-code.zip',
-            path: '/Projects/Backend/source-code.zip',
-            type: 'file',
+            id: "3-1-1",
+            name: "source-code.zip",
+            path: "/Projects/Backend/source-code.zip",
+            type: "file",
             size: 15678000,
-            modifiedDate: new Date('2024-03-17').valueOf(),
-            extension: 'zip',
+            modifiedDate: new Date("2024-03-17").valueOf(),
+            extension: "zip",
           },
           {
-            id: '3-1-2',
-            name: 'readme.md',
-            path: '/Projects/Backend/readme.md',
-            type: 'file',
+            id: "3-1-2",
+            name: "readme.md",
+            path: "/Projects/Backend/readme.md",
+            type: "file",
             size: 12400,
-            modifiedDate: new Date('2024-03-16').valueOf(),
-            extension: 'md',
+            modifiedDate: new Date("2024-03-16").valueOf(),
+            extension: "md",
           },
         ],
       },
       {
-        id: '3-2',
-        name: 'Frontend',
-        path: '/Projects/Frontend',
-        type: 'folder',
+        id: "3-2",
+        name: "Frontend",
+        path: "/Projects/Frontend",
+        type: "folder",
         size: 0,
-        modifiedDate: new Date('2024-03-17').valueOf(),
+        modifiedDate: new Date("2024-03-17").valueOf(),
         children: [
           {
-            id: '3-2-1',
-            name: 'build.tar.gz',
-            path: '/Projects/Frontend/build.tar.gz',
-            type: 'file',
+            id: "3-2-1",
+            name: "build.tar.gz",
+            path: "/Projects/Frontend/build.tar.gz",
+            type: "file",
             size: 8567000,
-            modifiedDate: new Date('2024-03-17').valueOf(),
-            extension: 'gz',
+            modifiedDate: new Date("2024-03-17").valueOf(),
+            extension: "gz",
           },
           {
-            id: '3-2-2',
-            name: 'design-specs.pdf',
-            path: '/Projects/Frontend/design-specs.pdf',
-            type: 'file',
+            id: "3-2-2",
+            name: "design-specs.pdf",
+            path: "/Projects/Frontend/design-specs.pdf",
+            type: "file",
             size: 5648000,
-            modifiedDate: new Date('2024-03-15').valueOf(),
-            extension: 'pdf',
+            modifiedDate: new Date("2024-03-15").valueOf(),
+            extension: "pdf",
           },
         ],
       },
     ],
   },
   {
-    id: '4',
-    name: 'Downloads',
-    path: '/Downloads',
-    type: 'folder',
+    id: "4",
+    name: "Downloads",
+    path: "/Downloads",
+    type: "folder",
     size: 0,
-    modifiedDate: new Date('2024-03-18').valueOf(),
+    modifiedDate: new Date("2024-03-18").valueOf(),
     children: [
       {
-        id: '4-1',
-        name: 'software-update.exe',
-        path: '/Downloads/software-update.exe',
-        type: 'file',
+        id: "4-1",
+        name: "software-update.exe",
+        path: "/Downloads/software-update.exe",
+        type: "file",
         size: 245890000,
-        modifiedDate: new Date('2024-03-18').valueOf(),
-        extension: 'exe',
+        modifiedDate: new Date("2024-03-18").valueOf(),
+        extension: "exe",
       },
       {
-        id: '4-2',
-        name: 'presentation.pptx',
-        path: '/Downloads/presentation.pptx',
-        type: 'file',
+        id: "4-2",
+        name: "presentation.pptx",
+        path: "/Downloads/presentation.pptx",
+        type: "file",
         size: 8567000,
-        modifiedDate: new Date('2024-03-17').valueOf(),
-        extension: 'pptx',
+        modifiedDate: new Date("2024-03-17").valueOf(),
+        extension: "pptx",
       },
     ],
   },
@@ -263,12 +263,12 @@ const deepFind = <T extends Record<PropertyKey, any>>(
   originArr: T[],
   callback: (item: T, parent?: T | null) => boolean,
   {
-    childrenKey = 'children',
+    childrenKey = "children",
     structure = false,
   }: { childrenKey?: keyof T; structure?: boolean } = {}
 ): T | null => {
   if (!Array.isArray(originArr)) {
-    throw new Error('请传入数组');
+    throw new Error("请传入数组");
   }
 
   let result: T | null = null;
@@ -295,7 +295,7 @@ const deepMap = <
   originArr: T[] = [],
   callback: (item: T, index: number, arr: T[]) => R,
   {
-    childrenKey = 'children',
+    childrenKey = "children",
     toChildrenKey = childrenKey,
   }: { childrenKey?: keyof T; toChildrenKey?: keyof R } = {}
 ): R[] => {
@@ -316,15 +316,27 @@ const deepMap = <
 
 const App = () => {
   const [realFiles, setRealFiles] = useState<FileItem[]>(() => files);
-  const [openedKey, setOpenedKey] = useState('0');
+  const [openedKey, setOpenedKey] = useState("0");
 
   return (
-    <div style={{ display: 'flex', height: '80vh' }}>
+    <div style={{ display: "flex", height: "80vh" }}>
       <FileManager
         files={realFiles}
         openedKey={openedKey}
+        // disabledContextMenu
+        // contextMenuItems={[
+        //   {
+        //     key: "1",
+        //     label: "测试",
+        //     onClick(...args) {
+        //       // 摁下ctrl+c将执行该onClick方法
+        //       console.log("qwe", args);
+        //     },
+        //     shortcut: "ctrl+c",
+        //   },
+        // ]}
         onNavigate={async (file) => {
-          if (!file) return alert('路径不存在');
+          if (!file) return alert("路径不存在");
           setOpenedKey(file.id);
         }}
         onPaste={async (to, files) => {
@@ -333,7 +345,7 @@ const App = () => {
 
             if (cur) {
               cur.children = [...(cur.children || []), ...files];
-            } else if (to.id === '0') {
+            } else if (to.id === "0") {
               // 处理粘贴到最外层的清空
               files.forEach((file) => {
                 prev.push(file);
@@ -356,7 +368,7 @@ const App = () => {
               fromCur.children = fromCur.children?.filter(
                 (item) => !newFiles.map((it) => it.id).includes(item.id)
               );
-            } else if (from.id === '0') {
+            } else if (from.id === "0") {
               // 处理移动最外层的文件到其他地方的情况
               result = prev.filter(
                 (item) => !newFiles.map((it) => it.id).includes(item.id)
@@ -367,7 +379,7 @@ const App = () => {
             const cur = deepFind(prev, (item) => item.id === to.id);
             if (cur) {
               cur.children = [...(cur.children || []), ...newFiles];
-            } else if (to.id === '0') {
+            } else if (to.id === "0") {
               // 处理移动其他地方的文件到最外层的情况
               newFiles.forEach((file) => {
                 result.push({ ...file, path: to.path + file.path });
@@ -382,7 +394,7 @@ const App = () => {
             const cur = deepFind(result, (item) => item.id === from.id);
             if (cur) {
               cur.children = cur.children?.filter((it) => !ids.includes(it.id));
-            } else if (from.id === '0') {
+            } else if (from.id === "0") {
               // 处理删除最外层的文件的情况
               result = result.filter((item) => !ids.includes(item.id));
             }
@@ -393,9 +405,9 @@ const App = () => {
           setRealFiles((prev) => {
             const cur = deepFind(prev, (item) => item.id === from.id);
             const newFolder = {
-              id: '' + Math.random(),
-              name: '新建文件夹',
-              type: 'folder',
+              id: "" + Math.random(),
+              name: "新建文件夹",
+              type: "folder",
               size: 0,
               modifiedDate: new Date().valueOf(),
               children: [],
@@ -407,15 +419,15 @@ const App = () => {
                 ...(cur.children || []),
                 {
                   ...newFolder,
-                  type: 'folder',
+                  type: "folder",
                   path: `${cur.path}/${newFolder.name}`,
                 },
               ];
-            } else if (from.id === '0') {
+            } else if (from.id === "0") {
               // 处理在最外层新增的情况
               prev.push({
                 ...newFolder,
-                type: 'folder',
+                type: "folder",
                 path: `/${newFolder.name}`,
               });
             }
@@ -428,19 +440,19 @@ const App = () => {
             if (cur) {
               cur.name = value;
               cur.path = `${cur.path
-                .split('/')
+                .split("/")
                 .slice(0, -1)
-                .join('/')}/${value}`;
+                .join("/")}/${value}`;
             }
             return [...prev];
           });
         }}
         onUpload={async (to, files) => {
-          console.log('files', to, files);
-          console.log('执行上传方法....');
+          console.log("files", to, files);
+          console.log("执行上传方法....");
         }}
         onDownload={(file) => {
-          console.log('通知服务器开始下载该文件', file);
+          console.log("通知服务器开始下载该文件", file);
         }}
       />
     </div>
