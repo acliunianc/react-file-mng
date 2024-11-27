@@ -25,7 +25,13 @@ export type MenuItem = {
     item: MenuItem,
     actions: Actions
   ) => void;
-  disabled?: boolean;
+  disabled?:
+    | boolean
+    | ((
+        selectedItems: FileItem[],
+        currentFolder: FileItem,
+        item: MenuItem
+      ) => boolean);
   shortcut?: string;
   danger?: boolean;
 };
@@ -176,13 +182,22 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
                 w-full px-4 py-1.5 text-left flex items-center justify-between
                 ${item.danger ? "text-red-600" : "text-gray-700"}
                 ${
-                  item.disabled
+                  (
+                    typeof item.disabled === "function"
+                      ? item.disabled(selectedItems, currentFolder, item)
+                      : item.disabled
+                  )
                     ? "!text-gray-400 cursor-not-allowed"
                     : "hover:bg-gray-100"
                 }
               `}
             onClick={() => {
-              if (!item.disabled) {
+              const disabled =
+                typeof item.disabled === "function"
+                  ? item.disabled(selectedItems, currentFolder, item)
+                  : item.disabled;
+
+              if (!disabled) {
                 item.onClick?.(selectedItems, currentFolder, item, {
                   onClose,
                   onCopy,
@@ -197,7 +212,11 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
                 onClose?.();
               }
             }}
-            disabled={item.disabled}
+            disabled={
+              typeof item.disabled === "function"
+                ? item.disabled(selectedItems, currentFolder, item)
+                : item.disabled
+            }
           >
             <span className="flex-grow">{item.label}</span>
             {item.shortcut && (

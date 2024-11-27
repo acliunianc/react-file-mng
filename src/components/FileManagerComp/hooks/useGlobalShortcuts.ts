@@ -45,7 +45,12 @@ export const useGlobalShortcuts = (config: {
         if (item.type === "separator") return;
 
         const { shortcut, onClick, disabled } = item;
-        if (shortcut && onClick && !disabled) {
+
+        const _disabled =
+          typeof disabled === "function"
+            ? disabled(selectedItems, currentFolder, item)
+            : disabled;
+        if (shortcut && onClick && !_disabled) {
           // 标准化快捷键格式
           const normalizedShortcut = normalizeShortcut(shortcut);
           map.set(normalizedShortcut, item);
@@ -57,7 +62,7 @@ export const useGlobalShortcuts = (config: {
     processMenuItems(menuItems);
 
     return map;
-  }, [menuItems]);
+  }, [menuItems, selectedItems, currentFolder]);
 
   useEffect(() => {
     if (!enabled) return;
