@@ -552,6 +552,26 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
     sortFiles,
   ]);
 
+  // ------------------------------------------
+  // 重置状态
+  // ------------------------------------------
+  // #region
+  const resetState = () => {
+    setSelectedFileIds([]);
+    setSelectedItems([]);
+    setContextMenu(null);
+  };
+
+  useEffect(() => {
+    document.addEventListener('click', resetState);
+    document.addEventListener('contextmenu', resetState);
+    return () => {
+      document.removeEventListener('click', resetState);
+      document.removeEventListener('contextmenu', resetState);
+    };
+  }, []);
+  // #endregion
+
   useImperativeHandle(actionRef, () => {
     return {
       getSelectedItems: () => selectedItems, // 获取选中的文件
@@ -571,14 +591,6 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
         ref={fileManagerRef}
         tabIndex={-1}
         className="relative h-full w-full bg-white rounded-lg shadow-lg border flex flex-col"
-        onClick={() => {
-          setSelectedFileIds([]);
-          setSelectedItems([]);
-          setContextMenu(null);
-        }}
-        onContextMenu={() => {
-          setContextMenu(null);
-        }}
         {...dragBindings}
       >
         <div className="flex-shrink-0">
