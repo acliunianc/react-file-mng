@@ -237,6 +237,10 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
         setHistoryStack([...historyStack.slice(0, index + 1), newHistory]);
         setCurrentHistory(newHistory);
         setPath(file.path);
+
+        // 清空选中项
+        setSelectedFileIds([]);
+        setSelectedItems([]);
       } catch (error) {
         // 失败暂不进行处理
         console.log(error);
@@ -578,7 +582,13 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
         {...dragBindings}
       >
         <div className="flex-shrink-0">
-          <ToolBar onNavigate={onNavigate} />
+          <ToolBar
+            onNavigate={async (...args) => {
+              setSelectedFileIds([]);
+              setSelectedItems([]);
+              return onNavigate?.(...args);
+            }}
+          />
         </div>
         <div
           className="flex-grow"
