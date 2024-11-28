@@ -1,4 +1,3 @@
-import React, { useContext, useMemo } from "react";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -7,6 +6,7 @@ import {
   ListBulletIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
+import React, { useContext, useMemo } from "react";
 import { v4 } from "uuid";
 import AddressBar from "../AddressBar";
 import { FileManagerContext } from "../context/FileManagerContext";
@@ -35,19 +35,27 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
     // 在打平的realFiles中查找该路径
     const _currentFolder = flatRealFiles.find((item) => item.path === path);
     if (!_currentFolder) {
-      // 即使找不到路径，也需要触发onNavigate事件通知使用者
-      return onNavigate?.(null, path);
+      try {
+        onNavigate?.(null, path);
+      } catch (error) {
+        // TODO:暂时什么都不做
+      }
+      return;
     }
 
-    await onNavigate?.(_currentFolder, path);
-    setPath(_currentFolder.path);
-    const newHistory = {
-      path: _currentFolder.path,
-      id: v4(),
-      record: _currentFolder,
-    };
-    setCurrentHistory(newHistory);
-    setHistoryStack((prev) => [...prev, newHistory]);
+    try {
+      await onNavigate?.(_currentFolder, path);
+      setPath(_currentFolder.path);
+      const newHistory = {
+        path: _currentFolder.path,
+        id: v4(),
+        record: _currentFolder,
+      };
+      setCurrentHistory(newHistory);
+      setHistoryStack((prev) => [...prev, newHistory]);
+    } catch (error) {
+      // TODO:暂时什么都不做
+    }
   };
 
   const canGoBack = useMemo(

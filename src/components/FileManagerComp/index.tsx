@@ -242,8 +242,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
         setSelectedFileIds([]);
         setSelectedItems([]);
       } catch (error) {
-        // 失败暂不进行处理
-        console.log(error);
+        // TODO:暂时什么都不做
       }
     },
     [getHistoryIndex, historyStack, onNavigate]
@@ -582,6 +581,13 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       getPath: () => path, // 获取路径
       getRealFiles: () => realFiles, // 获取真实使用的文件列表
       getFlatRealFiles: () => flatRealFiles, // 获取被打平的真实使用的文件列表
+      setSelectedItems,
+      setSelectedFileIds,
+      setCurrentFolder,
+      setCopySelectedItems,
+      setCutSelectedItems,
+      setPath,
+      setViewMode,
     };
   });
 
