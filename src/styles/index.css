@@ -1,3 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@layer react-file-mng {
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+}
