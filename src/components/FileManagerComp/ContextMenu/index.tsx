@@ -1,6 +1,7 @@
 import React, { ReactNode, useCallback, useContext } from "react";
 import { FileManagerContext } from "../context/FileManagerContext";
 import { useGlobalShortcuts } from "../hooks/useGlobalShortcuts";
+import classNames from "classnames";
 import { FileItem } from "../types";
 
 export interface Actions {
@@ -180,7 +181,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
             key={item.key}
             className={`
                 w-full px-4 py-1.5 text-left flex items-center justify-between
-                ${item.danger ? "text-red-600" : "text-gray-700"}
+                ${classNames(item.danger ? "text-red-600" : "text-gray-700")}
                 ${
                   (
                     typeof item.disabled === "function"
