@@ -1,5 +1,4 @@
 import React, { useContext, useMemo } from "react";
-
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -68,9 +67,11 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
     const index = getHistoryIndex();
     const prevHistory = historyStack[index - 1];
     if (!prevHistory) return;
-    await onNavigate?.(prevHistory.record, prevHistory.path);
-    setPath(prevHistory.path);
-    setCurrentHistory(prevHistory);
+    try {
+      await onNavigate?.(prevHistory.record, prevHistory.path);
+      setPath(prevHistory.path);
+      setCurrentHistory(prevHistory);
+    } catch (error) {}
   };
 
   const handleToolBarGoForward = async () => {
@@ -78,9 +79,11 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
     const index = getHistoryIndex();
     const nextHistory = historyStack[index + 1];
     if (!nextHistory) return;
-    await onNavigate?.(nextHistory.record, nextHistory.path);
-    setPath(nextHistory.path);
-    setCurrentHistory(nextHistory);
+    try {
+      await onNavigate?.(nextHistory.record, nextHistory.path);
+      setPath(nextHistory.path);
+      setCurrentHistory(nextHistory);
+    } catch (error) {}
   };
 
   const handleToolBarGoUp = async () => {
@@ -91,22 +94,26 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
       id: v4(),
       record: parentFolder,
     };
-    await onNavigate?.(parentFolder, parentFolder.path);
-    setCurrentHistory(newHistory);
-    setHistoryStack((prev) => [...prev, newHistory]);
-    setPath(parentFolder!.path);
+    try {
+      await onNavigate?.(parentFolder, parentFolder.path);
+      setCurrentHistory(newHistory);
+      setHistoryStack((prev) => [...prev, newHistory]);
+      setPath(parentFolder!.path);
+    } catch (error) {}
   };
 
   const handleToolBarGoHome = async () => {
-    await onNavigate?.(root, root.path);
-    setPath(root.path);
-    const newHistory = {
-      path: root.path,
-      id: v4(),
-      record: root,
-    };
-    setCurrentHistory(newHistory);
-    setHistoryStack((prev) => [...prev, newHistory]);
+    try {
+      await onNavigate?.(root, root.path);
+      setPath(root.path);
+      const newHistory = {
+        path: root.path,
+        id: v4(),
+        record: root,
+      };
+      setCurrentHistory(newHistory);
+      setHistoryStack((prev) => [...prev, newHistory]);
+    } catch (error) {}
   };
 
   return (
