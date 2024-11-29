@@ -80,16 +80,20 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
     []
   );
 
-  const [path, setPath] = useState("/");
-  const [realFiles, setRealFiles] = useState<FileItem[]>([]);
-
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: "name",
     direction: "asc",
   });
 
-  const root = useMemo<FileItem>(
-    () => ({
+  // homeKey只在初始化时生成一次, 之后不会改变, 没有任何依赖
+  const homeKey = useMemo(() => openedKey, []);
+
+  // 根文件夹除了子文件列表, 其他都不会改变
+  const root = useMemo<FileItem>(() => {
+    const cur = deepFind(files, (item) => item.id === homeKey);
+    if (cur) return cur;
+
+    return {
       id: "0",
       path: "/",
       name: "根目录",
@@ -97,14 +101,51 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       children: files,
       size: 0,
       modifiedDate: new Date().getTime(),
-    }),
-    [files]
+    };
+  }, [files]);
+
+  function updateRealFiles(files: FileItem[]) {
+    const deepMap = (
+      arr: (FileItem & { parent?: FileItem })[],
+      parent?: (FileItem & { parent?: FileItem }) | null
+    ) => {
+      return arr.map((item) => {
+        if (parent) (item as any).parent = parent;
+        if (item.type === "folder" && item.children) {
+          item.children = deepMap(item.children, item);
+        }
+        return item;
+      });
+    };
+    return deepMap(
+      [
+        {
+          id: "0",
+          path: "/",
+          name: "根目录",
+          type: "folder",
+          children: files,
+          size: 0,
+          modifiedDate: new Date().getTime(),
+        },
+      ],
+      null
+    );
+  }
+  // 内部使用的文件列表, 需要初始化, 当每次files改变时都需要更新, realFiles的结构和files相同, 但是多了一个parent字段
+  const [realFiles, setRealFiles] = useState<FileItem[]>(() =>
+    updateRealFiles(files)
   );
+  useEffect(() => {
+    setRealFiles(updateRealFiles(files));
+  }, [files]);
 
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
   } | null>(null);
+
+  const [path, setPath] = useState("/");
   const [currentFolder, setCurrentFolder] = useState<FileItem>(() => root);
 
   const sortFiles = useCallback(
@@ -167,22 +208,6 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
     }
   }, [openedKey, realFiles, sortConfig, sortFiles]);
 
-  useEffect(() => {
-    const deepMap = (
-      arr: (FileItem & { parent?: FileItem })[],
-      parent?: (FileItem & { parent?: FileItem }) | null
-    ) => {
-      return arr.map((item) => {
-        if (parent) (item as any).parent = parent;
-        if (item.type === "folder" && item.children) {
-          item.children = deepMap(item.children, item);
-        }
-        return item;
-      });
-    };
-    setRealFiles(deepMap([root], null));
-  }, [root]);
-
   const flatRealFiles = useMemo(() => {
     const result: FileItem[] = [];
 
@@ -205,8 +230,8 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   // ------------------------------------------
   // #region
   const [currentHistory, setCurrentHistory] = useState<HistoryProp>(() => ({
-    id: "0",
-    path: "/",
+    id: currentFolder.id || "0",
+    path: currentFolder.path || "/",
     record: currentFolder,
   }));
   const [historyStack, setHistoryStack] = useState<HistoryProp[]>(() => [
@@ -562,11 +587,11 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   };
 
   useEffect(() => {
-    document.addEventListener('click', resetState);
-    document.addEventListener('contextmenu', resetState);
+    document.addEventListener("click", resetState);
+    document.addEventListener("contextmenu", resetState);
     return () => {
-      document.removeEventListener('click', resetState);
-      document.removeEventListener('contextmenu', resetState);
+      document.removeEventListener("click", resetState);
+      document.removeEventListener("contextmenu", resetState);
     };
   }, []);
   // #endregion
