@@ -621,7 +621,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       <div
         ref={fileManagerRef}
         tabIndex={-1}
-        className="relative h-full w-full bg-white rounded-lg shadow-lg border flex flex-col"
+        className="file-mng relative h-full w-full bg-white rounded-lg shadow-lg border flex flex-col"
         {...dragBindings}
       >
         <div className="flex-shrink-0">
