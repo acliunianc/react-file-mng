@@ -1,4 +1,10 @@
-import React, { ReactNode, useCallback, useContext } from "react";
+import React, {
+  ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+} from "react";
 import { FileManagerContext } from "../context/FileManagerContext";
 import { useGlobalShortcuts } from "../hooks/useGlobalShortcuts";
 import classNames from "classnames";
@@ -157,18 +163,36 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     },
     enabled: true,
   });
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-  if (!position) return null;
+  const realPosition = useMemo(() => {
+    if (!position) return { x: -9999, y: -9999 }; // 隐藏元素
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return position;
+
+    return {
+      x:
+        position.x + rect?.width > window.innerWidth
+          ? position.x - rect?.width
+          : position.x,
+      y:
+        position.y + rect?.height > window.innerHeight
+          ? position.y - rect?.height
+          : position.y,
+    };
+  }, [position]);
 
   return (
     <div
+      ref={containerRef}
       className="fixed z-50 bg-white rounded-lg shadow-lg py-1 min-w-52"
       style={{
-        left: position.x,
-        top: position.y,
+        opacity: position ? 1 : 0,
+        left: realPosition.x,
+        top: realPosition.y,
       }}
     >
-      <div className="w-full px-4 py-1.5 text-left flex items-center justify-between ">
+      <div className="w-full px-4 py-1.5 text-left flex items-center justify-between">
         选中{selectedItems.length}项
       </div>
       <div className="h-px bg-gray-200 my-1"></div>

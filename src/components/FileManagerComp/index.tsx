@@ -587,11 +587,11 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   };
 
   useEffect(() => {
-    document.addEventListener("click", resetState);
-    document.addEventListener("contextmenu", resetState);
+    addEventListener("click", resetState);
+    addEventListener("contextmenu", resetState);
     return () => {
-      document.removeEventListener("click", resetState);
-      document.removeEventListener("contextmenu", resetState);
+      removeEventListener("click", resetState);
+      removeEventListener("contextmenu", resetState);
     };
   }, []);
   // #endregion
@@ -630,7 +630,8 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
           width: "100%",
           backgroundColor: "#fff",
           borderRadius: "0.5rem",
-          boxShadow: "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)",
+          boxShadow:
+            "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)",
           borderWidth: "1px",
           display: "flex",
           flexDirection: "column",
