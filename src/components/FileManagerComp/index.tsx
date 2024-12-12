@@ -621,7 +621,20 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       <div
         ref={fileManagerRef}
         tabIndex={-1}
-        className="file-mng relative h-full w-full bg-white rounded-lg shadow-lg border flex flex-col"
+        className="file-mng"
+        // 修复：file-mng类后代的tailwindcss样式才会生效，所以需要将这些类写成行内样式。
+        // className="file-mng relative h-full w-full bg-white rounded-lg shadow-lg border flex flex-col"
+        style={{
+          position: "relative",
+          height: "100%",
+          width: "100%",
+          backgroundColor: "#fff",
+          borderRadius: "0.5rem",
+          boxShadow: "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)",
+          borderWidth: "1px",
+          display: "flex",
+          flexDirection: "column",
+        }}
         {...dragBindings}
       >
         <div className="flex-shrink-0">
