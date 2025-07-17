@@ -9,6 +9,7 @@ import { FileItem } from "../types";
 interface FileGridProps {
   onSelect?: (files: FileItem[]) => void;
   onNavigate?: (file: FileItem) => Promise<any>;
+  onDoubleClickItem?: (file: FileItem) => Promise<any>;
   onRename?: (file: FileItem, value: string) => Promise<any>;
   onMove?: (from: FileItem, to: FileItem, files: FileItem[]) => Promise<any>;
 }
@@ -16,6 +17,7 @@ interface FileGridProps {
 const FileGrid: React.FC<FileGridProps> = ({
   onSelect,
   onNavigate,
+  onDoubleClickItem,
   onRename,
   onMove,
 }) => {
@@ -113,6 +115,7 @@ const FileGrid: React.FC<FileGridProps> = ({
               if (file.type === "folder") {
                 onNavigate?.(file);
               }
+              onDoubleClickItem?.(file);
             }}
             draggable
             onDragStart={(e) =>

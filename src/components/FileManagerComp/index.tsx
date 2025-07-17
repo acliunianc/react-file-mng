@@ -40,9 +40,11 @@ type FileManagerCompProps = {
   openedKey: string;
   defaultViewMode?: ViewMode;
   disabledContextMenu?: boolean;
-  actionRef?: MutableRefObject<any>;
   contextMenuItems?: ContextMenuProps["items"];
+  actionRef?: MutableRefObject<any>;
+  style?: React.CSSProperties;
   onNavigate?: (file: FileItem | null, path: string) => Promise<any>;
+  onDoubleClickItem?: (file: FileItem | null, path: string) => Promise<any>;
   onPaste?: (to: FileItem, files: FileItem[]) => Promise<any>;
   onDelete?: (from: FileItem, ids: string[], files: FileItem[]) => Promise<any>;
   onCreateFolder?: (from: FileItem) => Promise<any>;
@@ -58,7 +60,9 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   disabledContextMenu = false,
   contextMenuItems,
   actionRef,
+  style,
   onNavigate,
+  onDoubleClickItem,
   onPaste,
   onDelete,
   onCreateFolder,
@@ -67,6 +71,8 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   onUpload,
   onDownload,
 }) => {
+  console.log("openedKey", openedKey);
+
   const fileManagerRef = useRef<HTMLDivElement>(null);
 
   const [viewMode, setViewMode] = useState<ViewMode>(defaultViewMode ?? "list");
@@ -136,6 +142,8 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   const [realFiles, setRealFiles] = useState<FileItem[]>(() =>
     updateRealFiles(files)
   );
+  console.log("realFiles", realFiles);
+
   useEffect(() => {
     setRealFiles(updateRealFiles(files));
   }, [files]);
@@ -147,6 +155,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
 
   const [path, setPath] = useState("/");
   const [currentFolder, setCurrentFolder] = useState<FileItem>(() => root);
+  console.log("🚀 ~ currentFolder:", currentFolder);
 
   const sortFiles = useCallback(
     (files: FileItem[]) => {
@@ -271,6 +280,16 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       }
     },
     [getHistoryIndex, historyStack, onNavigate]
+  );
+  const handleFileListDoubleClick = useCallback(
+    async (file: FileItem) => {
+      try {
+        await onDoubleClickItem?.(file, file.path);
+      } catch (error) {
+        // TODO:暂时什么都不做
+      }
+    },
+    [onDoubleClickItem]
   );
   const handleFileListSelect = useCallback((files: FileItem[]) => {
     setSelectedFileIds(files.map((it) => it.id));
@@ -635,6 +654,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
           borderWidth: "1px",
           display: "flex",
           flexDirection: "column",
+          ...style,
         }}
         {...dragBindings}
       >
@@ -658,6 +678,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
           {viewMode === "list" && (
             <FileList
               onNavigate={handleFileListNavigate}
+              onDoubleClickItem={handleFileListDoubleClick}
               onSelect={handleFileListSelect}
               onRename={handleFileListRename}
               onMove={onMove}
@@ -666,6 +687,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
           {viewMode === "grid" && (
             <FileGrid
               onNavigate={handleFileListNavigate}
+              onDoubleClickItem={handleFileListDoubleClick}
               onSelect={handleFileListSelect}
               onRename={handleFileListRename}
               onMove={onMove}

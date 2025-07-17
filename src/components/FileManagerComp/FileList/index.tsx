@@ -16,6 +16,7 @@ type SortField = "name" | "size" | "type" | "modifiedDate";
 export interface FileListProps {
   onSelect?: (files: FileItem[]) => void;
   onNavigate?: (file: FileItem) => Promise<any>;
+  onDoubleClickItem?: (file: FileItem) => Promise<any>;
   onRename?: (file: FileItem, value: string) => Promise<any>;
   onMove?: (from: FileItem, to: FileItem, files: FileItem[]) => Promise<any>;
 }
@@ -23,6 +24,7 @@ export interface FileListProps {
 const FileList: React.FC<FileListProps> = ({
   onSelect,
   onNavigate,
+  onDoubleClickItem,
   onRename,
   onMove,
 }) => {
@@ -89,9 +91,10 @@ const FileList: React.FC<FileListProps> = ({
   );
 
   const handleDoubleClick = (file: FileItem) => {
-    if (file.type === "folder" && onNavigate) {
-      onNavigate(file);
+    if (file.type === "folder") {
+      onNavigate?.(file);
     }
+    onDoubleClickItem?.(file);
   };
 
   const handleItemClick = (file: FileItem, event: React.MouseEvent) => {
@@ -225,17 +228,21 @@ const FileList: React.FC<FileListProps> = ({
             <div className="w-32 text-gray-500">
               {file.type === "folder"
                 ? "文件夹"
-                : file.name.split(".").pop()?.toUpperCase() || "文件"}
+                : file.name.split(".").length > 1
+                ? file.name.split(".").pop()?.toUpperCase()
+                : "文件"}
             </div>
 
             {/* 大小 */}
             <div className="w-32 text-gray-500">
-              {file.type === "folder" ? "-" : formatByte(file.size)}
+              {file.type === "folder"
+                ? "-"
+                : formatByte(Number.isNaN(Number(file.size)) ? 0 : file.size)}
             </div>
 
             {/* 修改时间 */}
             <div className="w-40 text-gray-500">
-              {moment(file.modifiedDate).format("YYYY-MM-DD HH:mm:ss")}
+              {moment(file.modifiedDate || "").format("YYYY-MM-DD HH:mm:ss")}
             </div>
           </div>
         ))}

@@ -185,7 +185,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   return (
     <div
       ref={containerRef}
-      className="fixed z-50 bg-white rounded-lg shadow-lg py-1 min-w-52"
+      className="fixed z-50 bg-white rounded-lg border shadow-lg py-1 min-w-52"
       style={{
         opacity: position ? 1 : 0,
         left: realPosition.x,
