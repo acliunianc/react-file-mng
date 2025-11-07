@@ -17,7 +17,7 @@ import FileList from "./FileList";
 import ToolBar from "./ToolBar";
 import { FileManagerContext } from "./context/FileManagerContext";
 import { useFileDrop } from "./hooks/useFileDrop";
-import type { FileItem, SortConfig, ViewMode } from "./types";
+import type { CustomIcon, FileItem, SortConfig, ViewMode } from "./types";
 
 export type HistoryProp = {
   path: string;
@@ -43,6 +43,7 @@ type FileManagerCompProps = {
   contextMenuItems?: ContextMenuProps["items"];
   actionRef?: MutableRefObject<any>;
   style?: React.CSSProperties;
+  customIcons?: CustomIcon[];
   onNavigate?: (file: FileItem | null, path: string) => Promise<any>;
   onDoubleClickItem?: (file: FileItem | null, path: string) => Promise<any>;
   onPaste?: (to: FileItem, files: FileItem[]) => Promise<any>;
@@ -61,6 +62,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   contextMenuItems,
   actionRef,
   style,
+  customIcons,
   onNavigate,
   onDoubleClickItem,
   onPaste,
@@ -96,7 +98,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
 
   // 根文件夹除了子文件列表, 其他都不会改变
   const root = useMemo<FileItem>(() => {
-    const cur = deepFind(files, (item) => item.id === homeKey);
+    const cur = deepFind(files, item => item.id === homeKey);
     if (cur) return cur;
 
     return {
@@ -115,7 +117,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       arr: (FileItem & { parent?: FileItem })[],
       parent?: (FileItem & { parent?: FileItem }) | null
     ) => {
-      return arr.map((item) => {
+      return arr.map(item => {
         if (parent) (item as any).parent = parent;
         if (item.type === "folder" && item.children) {
           item.children = deepMap(item.children, item);
@@ -160,8 +162,8 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   const sortFiles = useCallback(
     (files: FileItem[]) => {
       // 分离文件夹和文件
-      const folders = files.filter((file) => file.type === "folder");
-      const regularFiles = files.filter((file) => file.type !== "folder");
+      const folders = files.filter(file => file.type === "folder");
+      const regularFiles = files.filter(file => file.type !== "folder");
 
       const direction = sortConfig.direction === "asc" ? 1 : -1;
 
@@ -207,7 +209,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
 
   // openedKey 改变时刷新当前显示文件夹，显示openedKey对应的地址
   useEffect(() => {
-    const cur = deepFind(realFiles, (item) => item.id === openedKey);
+    const cur = deepFind(realFiles, item => item.id === openedKey);
     if (cur) {
       setPath(cur.path);
       setCurrentFolder({
@@ -247,7 +249,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
     currentHistory,
   ]);
   const getHistoryIndex = useCallback(() => {
-    return historyStack.map((item) => item.id).indexOf(currentHistory.id);
+    return historyStack.map(item => item.id).indexOf(currentHistory.id);
   }, [historyStack, currentHistory.id]);
   // #endregion
 
@@ -292,15 +294,15 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
     [onDoubleClickItem]
   );
   const handleFileListSelect = useCallback((files: FileItem[]) => {
-    setSelectedFileIds(files.map((it) => it.id));
+    setSelectedFileIds(files.map(it => it.id));
     setSelectedItems(files);
   }, []);
   const handleFileListRename = useCallback(
     async (file: FileItem, value: string) => {
       // 清理所有的editing状态
-      setCurrentFolder((prev) => ({
+      setCurrentFolder(prev => ({
         ...prev,
-        children: sortFiles(prev.children || []).map((it) => {
+        children: sortFiles(prev.children || []).map(it => {
           it.editing = false;
           return it;
         }),
@@ -324,7 +326,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
     // 剪切的时候清空复制的文件列表
     setCopySelectedItems([]);
     setCutSelectedItems([
-      ...selectedItems.map((item) => ({ ...item, from: currentFolder })),
+      ...selectedItems.map(item => ({ ...item, from: currentFolder })),
     ]);
   }, [selectedItems, currentFolder]);
   const handleContextMenuPaste = useCallback(async () => {
@@ -344,16 +346,16 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   const handleContextMenuDelete = useCallback(async () => {
     await onDelete?.(
       currentFolder,
-      selectedItems.map((it) => it.id),
+      selectedItems.map(it => it.id),
       selectedItems
     );
   }, [onDelete, currentFolder, selectedItems]);
   const handleContextMenuRename = useCallback(() => {
     // 设置当前选中的文件为编辑状态
-    setCurrentFolder((prev) => {
+    setCurrentFolder(prev => {
       return {
         ...prev,
-        children: sortFiles(prev.children || []).map((it) => {
+        children: sortFiles(prev.children || []).map(it => {
           if (selectedFileIds.includes(it.id)) {
             it.editing = true;
           }
@@ -379,7 +381,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       if (files.length > 0) {
         onUpload?.(
           currentFolder,
-          files.map((file) => ({
+          files.map(file => ({
             file,
             path: currentFolderPath + file.name,
           }))
@@ -405,8 +407,8 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       basePath: string = ""
     ): Promise<FileWithPath[]> => {
       if (entry.isFile) {
-        return new Promise((resolve) => {
-          (entry as FileSystemFileEntry).file((file) => {
+        return new Promise(resolve => {
+          (entry as FileSystemFileEntry).file(file => {
             const fullPath = `${basePath}/${entry.name}`;
             resolve([{ file, path: fullPath }]);
           });
@@ -415,10 +417,10 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
 
       if (entry.isDirectory) {
         const dirReader = (entry as FileSystemDirectoryEntry).createReader();
-        const entries = await new Promise<FileSystemEntry[]>((resolve) => {
+        const entries = await new Promise<FileSystemEntry[]>(resolve => {
           const allEntries: FileSystemEntry[] = [];
           const readBatch = () => {
-            dirReader.readEntries((batch) => {
+            dirReader.readEntries(batch => {
               if (batch.length === 0) {
                 resolve(allEntries);
                 return;
@@ -431,7 +433,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
         });
 
         const subEntryFiles = await Promise.all(
-          entries.map((subEntry) =>
+          entries.map(subEntry =>
             processEntry(subEntry, `${basePath}/${entry.name}`)
           )
         );
@@ -509,9 +511,9 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       }
 
       // 使用 Promise.all 处理所有 entry
-      const entryFilesPromises = entryList.map(async (entry) => {
+      const entryFilesPromises = entryList.map(async entry => {
         const entryFiles = await processEntry(entry);
-        return entryFiles.map((item) => ({
+        return entryFiles.map(item => ({
           ...item,
           path: currentFolderPath + item.path.slice(1),
         }));
@@ -521,7 +523,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       const results = await Promise.all(entryFilesPromises);
 
       // 将处理后的文件合并到 filesWithPath 中
-      results.forEach((result) => {
+      results.forEach(result => {
         filesWithPath.push(...result);
       });
 
@@ -669,7 +671,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
         </div>
         <div
           className="flex-grow"
-          onContextMenu={(e) => {
+          onContextMenu={e => {
             e.preventDefault();
             e.stopPropagation();
             setContextMenu({ x: e.pageX, y: e.pageY });
@@ -682,6 +684,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
               onSelect={handleFileListSelect}
               onRename={handleFileListRename}
               onMove={onMove}
+              customIcons={customIcons}
             />
           )}
           {viewMode === "grid" && (
@@ -691,6 +694,7 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
               onSelect={handleFileListSelect}
               onRename={handleFileListRename}
               onMove={onMove}
+              customIcons={customIcons}
             />
           )}
         </div>

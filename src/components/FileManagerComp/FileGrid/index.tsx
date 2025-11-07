@@ -4,7 +4,7 @@ import { DocumentIcon, FolderIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import React, { useContext, useMemo, useState } from "react";
 import { FileManagerContext } from "../context/FileManagerContext";
 import { useDragAndDrop } from "../hooks/useDragAndDrop";
-import { FileItem } from "../types";
+import { CustomIcon, FileItem } from "../types";
 
 interface FileGridProps {
   onSelect?: (files: FileItem[]) => void;
@@ -12,6 +12,7 @@ interface FileGridProps {
   onDoubleClickItem?: (file: FileItem) => Promise<any>;
   onRename?: (file: FileItem, value: string) => Promise<any>;
   onMove?: (from: FileItem, to: FileItem, files: FileItem[]) => Promise<any>;
+  customIcons?: CustomIcon[];
 }
 
 const FileGrid: React.FC<FileGridProps> = ({
@@ -20,6 +21,7 @@ const FileGrid: React.FC<FileGridProps> = ({
   onDoubleClickItem,
   onRename,
   onMove,
+  customIcons,
 }) => {
   const { setContextMenu, cutSelectedItems, selectedItems, currentFolder } =
     useContext(FileManagerContext);
@@ -38,7 +40,7 @@ const FileGrid: React.FC<FileGridProps> = ({
     // Ctrl/Command + 点击：切换选中状态
     if (event.ctrlKey || event.metaKey) {
       const newSelectedItems = selectedItems.includes(file)
-        ? selectedItems.filter((item) => item !== file)
+        ? selectedItems.filter(item => item !== file)
         : [...selectedItems, file];
 
       onSelect?.(newSelectedItems);
@@ -47,10 +49,10 @@ const FileGrid: React.FC<FileGridProps> = ({
     // Shift + 点击：范围选择
     else if (event.shiftKey && lastSelectedItem) {
       const startIndex = (currentFolder.children || []).findIndex(
-        (f) => f === lastSelectedItem
+        f => f === lastSelectedItem
       );
       const endIndex = (currentFolder.children || []).findIndex(
-        (f) => f === file
+        f => f === file
       );
 
       if (startIndex !== -1 && endIndex !== -1) {
@@ -78,32 +80,91 @@ const FileGrid: React.FC<FileGridProps> = ({
   };
 
   const cutSelectedIds = useMemo(
-    () => cutSelectedItems.map((it) => it.id),
+    () => cutSelectedItems.map(it => it.id),
     [cutSelectedItems]
   );
+
+  // 获取文件的扩展名
+  const getFileExtension = (file: FileItem): string => {
+    if (file.extension) {
+      return file.extension.toLowerCase();
+    }
+    const parts = file.name.split(".");
+    if (parts.length > 1) {
+      return parts.pop()?.toLowerCase() || "";
+    }
+    return "";
+  };
+
+  // 查找匹配的自定义图标
+  const findCustomIcon = (file: FileItem) => {
+    if (!customIcons || customIcons.length === 0) {
+      return null;
+    }
+
+    const extension = getFileExtension(file);
+    if (!extension) {
+      return null;
+    }
+
+    return customIcons.find((icon) => {
+      if (typeof icon.extension === "string") {
+        return icon.extension.toLowerCase() === extension;
+      }
+      if (Array.isArray(icon.extension)) {
+        return icon.extension.some(
+          (ext) => ext.toLowerCase() === extension
+        );
+      }
+      return false;
+    });
+  };
+
+  // 渲染文件图标
+  const renderFileIcon = (file: FileItem) => {
+    if (file.type === "folder") {
+      return <FolderIcon className="text-yellow-400" />;
+    }
+
+    const customIcon = findCustomIcon(file);
+    if (customIcon) {
+      return customIcon.render(file);
+    }
+
+    if (isImageExtension(file.name)) {
+      if (file.previewImage) {
+        if (typeof file.previewImage === "string") {
+          return <img src={file.previewImage} className="w-12 h-12" />;
+        }
+        return file.previewImage;
+      }
+      return <PhotoIcon />;
+    }
+
+    return <DocumentIcon />;
+  };
 
   return (
     <div className="w-full h-full overflow-auto">
       <div className="flex flex-wrap gap-4 p-4">
-        {(currentFolder.children || []).map((file) => (
+        {(currentFolder.children || []).map(file => (
           <div
             key={file.id}
             title={file.name}
             className={`
             flex flex-col flex-shrink-0 items-center p-2 rounded cursor-pointer select-none w-28 hover:bg-gray-50
             ${
-              selectedItems.map((it) => it.id).includes(file.id) &&
-              "!bg-blue-100"
+              selectedItems.map(it => it.id).includes(file.id) && "!bg-blue-100"
             }
             transition-colors
             ${cutSelectedIds.includes(file.id) && "opacity-50"}
           `}
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               setContextMenu(null);
               handleItemClick(file, e);
             }}
-            onContextMenu={(e) => {
+            onContextMenu={e => {
               e.preventDefault();
               // 没有选中selectedItems时, 对某个文件右击通常需要操作该文件，默认选中当前项
               // 而当有多个选中项时, 右键菜单不应该操作当前项, 而是操作多个选中项, 所以不能触发 onSelect , 若是触发那么就会替换多个选中项为单个
@@ -118,7 +179,7 @@ const FileGrid: React.FC<FileGridProps> = ({
               onDoubleClickItem?.(file);
             }}
             draggable
-            onDragStart={(e) =>
+            onDragStart={e =>
               handleDragStart(
                 e,
                 currentFolder,
@@ -127,25 +188,11 @@ const FileGrid: React.FC<FileGridProps> = ({
             }
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, file)}
+            onDrop={e => handleDrop(e, file)}
           >
             {/* 图片需要直接显示 */}
             <div className="text-[36px] leading-9 mb-2 w-12 h-12">
-              {file.type === "folder" ? (
-                <FolderIcon className="text-yellow-400" />
-              ) : isImageExtension(file.name) ? (
-                file.previewImage ? (
-                  typeof file.previewImage === "string" ? (
-                    <img src={file.previewImage} className="w-12 h-12" />
-                  ) : (
-                    file.previewImage
-                  )
-                ) : (
-                  <PhotoIcon />
-                )
-              ) : (
-                <DocumentIcon />
-              )}
+              {renderFileIcon(file)}
             </div>
 
             {/* 切换input或者div */}
@@ -156,7 +203,7 @@ const FileGrid: React.FC<FileGridProps> = ({
                   onBlur={() => {
                     onRename?.(file, file.name);
                   }}
-                  onKeyDown={(e) => {
+                  onKeyDown={e => {
                     const target = e.target as HTMLInputElement;
                     if (e.key === "Enter") {
                       // 触发通知

@@ -9,7 +9,7 @@ import moment from "moment";
 import React, { useContext, useMemo, useState } from "react";
 import { FileManagerContext } from "../context/FileManagerContext";
 import { useDragAndDrop } from "../hooks/useDragAndDrop";
-import { FileItem, SortConfig } from "../types";
+import { CustomIcon, FileItem, SortConfig } from "../types";
 
 type SortField = "name" | "size" | "type" | "modifiedDate";
 
@@ -19,6 +19,7 @@ export interface FileListProps {
   onDoubleClickItem?: (file: FileItem) => Promise<any>;
   onRename?: (file: FileItem, value: string) => Promise<any>;
   onMove?: (from: FileItem, to: FileItem, files: FileItem[]) => Promise<any>;
+  customIcons?: CustomIcon[];
 }
 
 const FileList: React.FC<FileListProps> = ({
@@ -27,6 +28,7 @@ const FileList: React.FC<FileListProps> = ({
   onDoubleClickItem,
   onRename,
   onMove,
+  customIcons,
 }) => {
   const {
     setContextMenu,
@@ -140,6 +142,56 @@ const FileList: React.FC<FileListProps> = ({
     }
   };
 
+  // 获取文件的扩展名
+  const getFileExtension = (file: FileItem): string => {
+    if (file.extension) {
+      return file.extension.toLowerCase();
+    }
+    const parts = file.name.split(".");
+    if (parts.length > 1) {
+      return parts.pop()?.toLowerCase() || "";
+    }
+    return "";
+  };
+
+  // 查找匹配的自定义图标
+  const findCustomIcon = (file: FileItem) => {
+    if (!customIcons || customIcons.length === 0) {
+      return null;
+    }
+
+    const extension = getFileExtension(file);
+    if (!extension) {
+      return null;
+    }
+
+    return customIcons.find((icon) => {
+      if (typeof icon.extension === "string") {
+        return icon.extension.toLowerCase() === extension;
+      }
+      if (Array.isArray(icon.extension)) {
+        return icon.extension.some(
+          (ext) => ext.toLowerCase() === extension
+        );
+      }
+      return false;
+    });
+  };
+
+  // 渲染文件图标
+  const renderFileIcon = (file: FileItem) => {
+    if (file.type === "folder") {
+      return <FolderIcon className="w-5 h-5 text-yellow-500" />;
+    }
+
+    const customIcon = findCustomIcon(file);
+    if (customIcon) {
+      return customIcon.render(file);
+    }
+
+    return <DocumentIcon className="w-5 h-5 text-blue-500" />;
+  };
+
   return (
     // 阻止冒泡传递
     <div className={`w-full h-full flex flex-col`}>
@@ -189,11 +241,7 @@ const FileList: React.FC<FileListProps> = ({
           >
             {/* 文件图标 */}
             <div className="w-6 h-6 flex items-center justify-center">
-              {file.type === "folder" ? (
-                <FolderIcon className="w-5 h-5 text-yellow-500" />
-              ) : (
-                <DocumentIcon className="w-5 h-5 text-blue-500" />
-              )}
+              {renderFileIcon(file)}
             </div>
 
             {/* 文件名 */}

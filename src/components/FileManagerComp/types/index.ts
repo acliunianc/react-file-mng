@@ -22,3 +22,8 @@ export interface SortConfig {
   field: keyof Pick<FileItem, "name" | "type" | "size" | "modifiedDate">;
   direction: "asc" | "desc";
 }
+
+export interface CustomIcon {
+  extension: string | string[];
+  render: (file: FileItem) => ReactNode;
+}

@@ -29,6 +29,7 @@
     "**/*.css"
   ],
   "scripts": {
+    "dev": "rollup -c -w",
     "build": "rollup -c"
   },
   "peerDependencies": {
