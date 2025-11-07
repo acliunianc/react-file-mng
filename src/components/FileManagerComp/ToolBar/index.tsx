@@ -3,20 +3,33 @@ import {
   ArrowRightIcon,
   ArrowUpIcon,
   HomeIcon,
+  ArrowPathIcon,
   ListBulletIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
-import React, { useContext, useMemo } from "react";
+import React, { FC, useContext, useMemo } from "react";
 import { v4 } from "uuid";
 import AddressBar from "../AddressBar";
 import { FileManagerContext } from "../context/FileManagerContext";
-import type { FileItem } from "../types";
+import type { FileItem, ViewMode } from "../types";
 
 export interface ToolBarProps {
   onNavigate?: (file: FileItem | null, path: string) => Promise<any>;
+  onReload?: (file: FileItem) => Promise<any>;
+  toolBarToolRender?: (params: {
+    actions: {
+      viewMode: ViewMode;
+      setViewMode: (mode: ViewMode) => void;
+    };
+    doms: React.FunctionComponent<any>[];
+  }) => React.ReactNode;
 }
 
-const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
+const ToolBar: React.FC<ToolBarProps> = ({
+  onNavigate,
+  onReload,
+  toolBarToolRender,
+}) => {
   const {
     path,
     setPath,
@@ -33,7 +46,7 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
 
   const handleToolBarNavigate = async (path: string) => {
     // 在打平的realFiles中查找该路径
-    const _currentFolder = flatRealFiles.find((item) => item.path === path);
+    const _currentFolder = flatRealFiles.find(item => item.path === path);
     if (!_currentFolder) {
       try {
         onNavigate?.(null, path);
@@ -52,7 +65,7 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
         record: _currentFolder,
       };
       setCurrentHistory(newHistory);
-      setHistoryStack((prev) => [...prev, newHistory]);
+      setHistoryStack(prev => [...prev, newHistory]);
     } catch (error) {
       // TODO:暂时什么都不做
     }
@@ -105,7 +118,7 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
     try {
       await onNavigate?.(parentFolder, parentFolder.path);
       setCurrentHistory(newHistory);
-      setHistoryStack((prev) => [...prev, newHistory]);
+      setHistoryStack(prev => [...prev, newHistory]);
       setPath(parentFolder!.path);
     } catch (error) {}
   };
@@ -120,9 +133,56 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
         record: root,
       };
       setCurrentHistory(newHistory);
-      setHistoryStack((prev) => [...prev, newHistory]);
+      setHistoryStack(prev => [...prev, newHistory]);
     } catch (error) {}
   };
+
+  const ReloadButton: FC<any> = () => (
+    <button
+      type="button"
+      className="p-1.5 rounded-md hover:bg-gray-100"
+      onClick={() => onReload?.(currentFolder)}
+      title="刷新"
+    >
+      <ArrowPathIcon className="w-5 h-5" />
+    </button>
+  );
+
+  const GridViewButton: FC<any> = () => (
+    <button
+      type="button"
+      className={`p-1.5 rounded-md hover:bg-gray-100 ${
+        viewMode === "grid" && "bg-gray-100"
+      }`}
+      onClick={() => setViewMode("grid")}
+      title="网格视图"
+    >
+      <Squares2X2Icon className="w-5 h-5" />
+    </button>
+  );
+
+  const ListViewButton: FC<any> = () => (
+    <button
+      type="button"
+      className={`p-1.5 rounded-md hover:bg-gray-100 ${
+        viewMode === "list" && "bg-gray-100"
+      }`}
+      onClick={() => setViewMode("list")}
+      title="列表视图"
+    >
+      <ListBulletIcon className="w-5 h-5" />
+    </button>
+  );
+
+  const innerToolBarToolRender = toolBarToolRender
+    ? toolBarToolRender
+    : () => (
+        <>
+          <ReloadButton />
+          <GridViewButton />
+          <ListViewButton />
+        </>
+      );
 
   return (
     <div
@@ -185,26 +245,14 @@ const ToolBar: React.FC<ToolBarProps> = ({ onNavigate }) => {
       </div>
 
       <div className="flex items-center gap-1">
-        <button
-          type="button"
-          className={`p-1.5 rounded-md hover:bg-gray-100 ${
-            viewMode === "grid" && "bg-gray-100"
-          }`}
-          onClick={() => setViewMode("grid")}
-          title="网格视图"
-        >
-          <Squares2X2Icon className="w-5 h-5" />
-        </button>
-        <button
-          type="button"
-          className={`p-1.5 rounded-md hover:bg-gray-100 ${
-            viewMode === "list" && "bg-gray-100"
-          }`}
-          onClick={() => setViewMode("list")}
-          title="列表视图"
-        >
-          <ListBulletIcon className="w-5 h-5" />
-        </button>
+        {/* 可以增加自定义的render */}
+        {innerToolBarToolRender?.({
+          actions: {
+            viewMode,
+            setViewMode,
+          },
+          doms: [ReloadButton, GridViewButton, ListViewButton],
+        })}
       </div>
     </div>
   );

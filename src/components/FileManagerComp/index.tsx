@@ -14,7 +14,7 @@ import { ContextMenu, ContextMenuProps } from "./ContextMenu";
 import DropZone from "./DropZone";
 import FileGrid from "./FileGrid";
 import FileList from "./FileList";
-import ToolBar from "./ToolBar";
+import ToolBar, { type ToolBarProps } from "./ToolBar";
 import { FileManagerContext } from "./context/FileManagerContext";
 import { useFileDrop } from "./hooks/useFileDrop";
 import type { CustomIcon, FileItem, SortConfig, ViewMode } from "./types";
@@ -53,6 +53,10 @@ type FileManagerCompProps = {
   onRename?: (file: FileItem, value: string) => Promise<any>;
   onUpload?: (to: FileItem, files: FileWithPath[]) => Promise<any>;
   onDownload?: (file: FileItem) => void;
+  onReload?: (file: FileItem) => Promise<any>;
+  toolBarToolRender?: (
+    params: Parameters<NonNullable<ToolBarProps["toolBarToolRender"]>>[0]
+  ) => React.ReactNode;
 };
 const FileManagerComp: FC<FileManagerCompProps> = ({
   files,
@@ -72,6 +76,8 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
   onRename,
   onUpload,
   onDownload,
+  onReload,
+  toolBarToolRender,
 }) => {
   console.log("openedKey", openedKey);
 
@@ -667,6 +673,8 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
               setSelectedItems([]);
               return onNavigate?.(...args);
             }}
+            onReload={onReload}
+            toolBarToolRender={toolBarToolRender}
           />
         </div>
         <div
