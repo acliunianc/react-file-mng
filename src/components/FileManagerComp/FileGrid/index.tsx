@@ -145,8 +145,8 @@ const FileGrid: React.FC<FileGridProps> = ({
   };
 
   return (
-    <div className="w-full h-full overflow-auto">
-      <div className="flex flex-wrap gap-4 p-4">
+    <div className="w-full h-full flex flex-col">
+      <div className="flex flex-wrap gap-4 p-4 flex-grow basis-0 overflow-y-auto">
         {(currentFolder.children || []).map(file => (
           <div
             key={file.id}
@@ -227,6 +227,9 @@ const FileGrid: React.FC<FileGridProps> = ({
           </div>
         ))}
       </div>
+      <span className="flex-shrink-0 basis-0 ps-1">
+        {currentFolder.children?.length}个项目，选中{selectedItems.length}个项目
+      </span>
     </div>
   );
 };

@@ -40,7 +40,7 @@ const FileList: React.FC<FileListProps> = ({
   } = useContext(FileManagerContext);
 
   const cutSelectedIds = useMemo(
-    () => cutSelectedItems.map((it) => it.id),
+    () => cutSelectedItems.map(it => it.id),
     [cutSelectedItems]
   );
 
@@ -103,7 +103,7 @@ const FileList: React.FC<FileListProps> = ({
     // Ctrl/Command + 点击：切换选中状态
     if (event.ctrlKey || event.metaKey) {
       const newSelectedItems = selectedItems.includes(file)
-        ? selectedItems.filter((item) => item !== file)
+        ? selectedItems.filter(item => item !== file)
         : [...selectedItems, file];
 
       onSelect?.(newSelectedItems);
@@ -112,10 +112,10 @@ const FileList: React.FC<FileListProps> = ({
     // Shift + 点击：范围选择
     else if (event.shiftKey && lastSelectedItem) {
       const startIndex = (currentFolder.children || []).findIndex(
-        (f) => f === lastSelectedItem
+        f => f === lastSelectedItem
       );
       const endIndex = (currentFolder.children || []).findIndex(
-        (f) => f === file
+        f => f === file
       );
 
       if (startIndex !== -1 && endIndex !== -1) {
@@ -165,14 +165,12 @@ const FileList: React.FC<FileListProps> = ({
       return null;
     }
 
-    return customIcons.find((icon) => {
+    return customIcons.find(icon => {
       if (typeof icon.extension === "string") {
         return icon.extension.toLowerCase() === extension;
       }
       if (Array.isArray(icon.extension)) {
-        return icon.extension.some(
-          (ext) => ext.toLowerCase() === extension
-        );
+        return icon.extension.some(ext => ext.toLowerCase() === extension);
       }
       return false;
     });
@@ -196,29 +194,27 @@ const FileList: React.FC<FileListProps> = ({
     // 阻止冒泡传递
     <div className={`w-full h-full flex flex-col`}>
       {/* 表头 */}
-      <div className="flex-shrink-0 flex items-center px-4 py-2 border-b font-medium text-gray-500 sticky top-0 bg-white">
+      <div className="flex-shrink-0 basis-0 flex items-center px-4 py-2 border-b font-medium text-gray-500 sticky top-0 bg-white">
         <div className="w-6" /> {/* 图标占位 */}
         {renderHeader("name", "名称", "flex-1")}
         {renderHeader("type", "类型", "w-32")}
         {renderHeader("size", "大小", "w-32")}
         {renderHeader("modifiedDate", "修改日期", "w-40")}
       </div>
-
       {/* 文件列表 */}
-      <div className="flex-grow overflow-y-auto">
-        {(currentFolder.children || []).map((file) => (
+      <div className="flex-grow basis-0 overflow-y-auto">
+        {(currentFolder.children || []).map(file => (
           <div
             key={file.id}
             className={`flex items-center px-4 py-2 cursor-pointer select-none transition-colors hover:bg-gray-50 ${
-              selectedItems.map((it) => it.id).includes(file.id) &&
-              "!bg-blue-100"
+              selectedItems.map(it => it.id).includes(file.id) && "!bg-blue-100"
             } ${cutSelectedIds.includes(file.id) && "opacity-50"}`}
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               setContextMenu(null);
               handleItemClick(file, e);
             }}
-            onContextMenu={(e) => {
+            onContextMenu={e => {
               e.preventDefault();
               // 没有选中selectedItems时, 对某个文件右击通常需要操作该文件，默认选中当前项
               // 而当有多个选中项时, 右键菜单不应该操作当前项, 而是操作多个选中项, 所以不能触发 onSelect , 若是触发那么就会替换多个选中项为单个
@@ -228,7 +224,7 @@ const FileList: React.FC<FileListProps> = ({
             }}
             onDoubleClick={() => handleDoubleClick(file)}
             draggable
-            onDragStart={(e) =>
+            onDragStart={e =>
               handleDragStart(
                 e,
                 currentFolder,
@@ -237,7 +233,7 @@ const FileList: React.FC<FileListProps> = ({
             }
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, file)}
+            onDrop={e => handleDrop(e, file)}
           >
             {/* 文件图标 */}
             <div className="w-6 h-6 flex items-center justify-center">
@@ -252,7 +248,7 @@ const FileList: React.FC<FileListProps> = ({
                   onBlur={() => {
                     onRename?.(file, file.name);
                   }}
-                  onKeyDown={(e) => {
+                  onKeyDown={e => {
                     const target = e.target as HTMLInputElement;
                     if (e.key === "Enter") {
                       // 触发通知
@@ -295,6 +291,9 @@ const FileList: React.FC<FileListProps> = ({
           </div>
         ))}
       </div>
+      <span className="flex-shrink-0 basis-0 ps-1">
+        {currentFolder.children?.length}个项目，选中{selectedItems.length}个项目
+      </span>
     </div>
   );
 };
