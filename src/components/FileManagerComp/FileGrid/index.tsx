@@ -107,14 +107,12 @@ const FileGrid: React.FC<FileGridProps> = ({
       return null;
     }
 
-    return customIcons.find((icon) => {
+    return customIcons.find(icon => {
       if (typeof icon.extension === "string") {
         return icon.extension.toLowerCase() === extension;
       }
       if (Array.isArray(icon.extension)) {
-        return icon.extension.some(
-          (ext) => ext.toLowerCase() === extension
-        );
+        return icon.extension.some(ext => ext.toLowerCase() === extension);
       }
       return false;
     });
@@ -146,12 +144,13 @@ const FileGrid: React.FC<FileGridProps> = ({
 
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex flex-wrap gap-4 p-4 flex-grow basis-0 overflow-y-auto">
-        {(currentFolder.children || []).map(file => (
-          <div
-            key={file.id}
-            title={file.name}
-            className={`
+      <div className="flex-grow basis-0 overflow-y-auto">
+        <div className="flex flex-wrap gap-4 p-4">
+          {(currentFolder.children || []).map(file => (
+            <div
+              key={file.id}
+              title={file.name}
+              className={`
             flex flex-col flex-shrink-0 items-center p-2 rounded cursor-pointer select-none w-28 hover:bg-gray-50
             ${
               selectedItems.map(it => it.id).includes(file.id) && "!bg-blue-100"
@@ -159,73 +158,74 @@ const FileGrid: React.FC<FileGridProps> = ({
             transition-colors
             ${cutSelectedIds.includes(file.id) && "opacity-50"}
           `}
-            onClick={e => {
-              e.stopPropagation();
-              setContextMenu(null);
-              handleItemClick(file, e);
-            }}
-            onContextMenu={e => {
-              e.preventDefault();
-              // 没有选中selectedItems时, 对某个文件右击通常需要操作该文件，默认选中当前项
-              // 而当有多个选中项时, 右键菜单不应该操作当前项, 而是操作多个选中项, 所以不能触发 onSelect , 若是触发那么就会替换多个选中项为单个
-              if (selectedItems.length <= 1) {
-                onSelect?.([file]);
+              onClick={e => {
+                e.stopPropagation();
+                setContextMenu(null);
+                handleItemClick(file, e);
+              }}
+              onContextMenu={e => {
+                e.preventDefault();
+                // 没有选中selectedItems时, 对某个文件右击通常需要操作该文件，默认选中当前项
+                // 而当有多个选中项时, 右键菜单不应该操作当前项, 而是操作多个选中项, 所以不能触发 onSelect , 若是触发那么就会替换多个选中项为单个
+                if (selectedItems.length <= 1) {
+                  onSelect?.([file]);
+                }
+              }}
+              onDoubleClick={() => {
+                if (file.type === "folder") {
+                  onNavigate?.(file);
+                }
+                onDoubleClickItem?.(file);
+              }}
+              draggable
+              onDragStart={e =>
+                handleDragStart(
+                  e,
+                  currentFolder,
+                  selectedItems.length ? selectedItems : [file]
+                )
               }
-            }}
-            onDoubleClick={() => {
-              if (file.type === "folder") {
-                onNavigate?.(file);
-              }
-              onDoubleClickItem?.(file);
-            }}
-            draggable
-            onDragStart={e =>
-              handleDragStart(
-                e,
-                currentFolder,
-                selectedItems.length ? selectedItems : [file]
-              )
-            }
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={e => handleDrop(e, file)}
-          >
-            {/* 图片需要直接显示 */}
-            <div className="text-[36px] leading-9 mb-2 w-12 h-12">
-              {renderFileIcon(file)}
-            </div>
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={e => handleDrop(e, file)}
+            >
+              {/* 图片需要直接显示 */}
+              <div className="text-[36px] leading-9 mb-2 w-12 h-12">
+                {renderFileIcon(file)}
+              </div>
 
-            {/* 切换input或者div */}
-            {file?.editing ? (
-              <div className="w-full truncate">
-                <input
-                  autoFocus
-                  onBlur={() => {
-                    onRename?.(file, file.name);
-                  }}
-                  onKeyDown={e => {
-                    const target = e.target as HTMLInputElement;
-                    if (e.key === "Enter") {
-                      // 触发通知
-                      onRename?.(file, target.value);
-                      target.blur();
-                    } else if (e.key === "Escape") {
+              {/* 切换input或者div */}
+              {file?.editing ? (
+                <div className="w-full truncate">
+                  <input
+                    autoFocus
+                    onBlur={() => {
                       onRename?.(file, file.name);
-                      target.blur();
-                    }
-                  }}
-                  type="text"
-                  className="px-2 w-full border outline-none rounded"
-                  defaultValue={file.name}
-                />
-              </div>
-            ) : (
-              <div className="text-center text-sm truncate w-full">
-                {file.name}
-              </div>
-            )}
-          </div>
-        ))}
+                    }}
+                    onKeyDown={e => {
+                      const target = e.target as HTMLInputElement;
+                      if (e.key === "Enter") {
+                        // 触发通知
+                        onRename?.(file, target.value);
+                        target.blur();
+                      } else if (e.key === "Escape") {
+                        onRename?.(file, file.name);
+                        target.blur();
+                      }
+                    }}
+                    type="text"
+                    className="px-2 w-full border outline-none rounded"
+                    defaultValue={file.name}
+                  />
+                </div>
+              ) : (
+                <div className="text-center text-sm truncate w-full">
+                  {file.name}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
       <span className="flex-shrink-0 basis-0 ps-1">
         {currentFolder.children?.length}个项目，选中{selectedItems.length}个项目
