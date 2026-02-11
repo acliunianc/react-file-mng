@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from "react";
+import { useContext, useEffect, useMemo, type RefObject } from "react";
 import { Actions, type MenuItem, type MenuItems } from "../ContextMenu";
 import { FileManagerContext } from "../context/FileManagerContext";
 
@@ -28,12 +28,26 @@ const normalizeShortcut = (shortcut: string): string => {
     .join("+");
 };
 
+/** 判断是否应在当前文件管理器实例内响应快捷键（仅当页面可见且事件目标在容器内时拦截，避免影响用户其他区域、缓存、后台页等默认行为） */
+function shouldHandleShortcut(
+  e: KeyboardEvent,
+  containerRef?: RefObject<HTMLDivElement | null>
+): boolean {
+  if (document.visibilityState !== "visible") return false;
+  if (!containerRef?.current) return true;
+  const target = e.target as Node | null;
+  if (!target) return false;
+  return containerRef.current.contains(target);
+}
+
 export const useGlobalShortcuts = (config: {
   items: MenuItems;
   actions: Actions;
   enabled: boolean;
+  /** 文件管理器根 ref；传入时仅当事件目标在容器内且页面可见时才拦截快捷键，否则不阻止默认行为 */
+  containerRef?: RefObject<HTMLDivElement | null>;
 }) => {
-  const { items: menuItems, enabled, actions } = config;
+  const { items: menuItems, enabled, actions, containerRef } = config;
   const { selectedItems, currentFolder } = useContext(FileManagerContext);
   // 合并并提取所有有效的快捷键配置
   const shortcutMap = useMemo(() => {
@@ -71,11 +85,12 @@ export const useGlobalShortcuts = (config: {
       const shortcut = getShortcutFromEvent(e);
       const item = shortcutMap.get(shortcut);
       if (!item?.onClick) return;
+      if (!shouldHandleShortcut(e, containerRef)) return;
       e.preventDefault();
       item?.onClick(selectedItems, currentFolder, item, actions!);
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [enabled, shortcutMap, selectedItems, currentFolder, actions]);
+  }, [enabled, shortcutMap, selectedItems, currentFolder, actions, containerRef]);
 };

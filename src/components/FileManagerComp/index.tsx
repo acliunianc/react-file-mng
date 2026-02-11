@@ -583,6 +583,8 @@ const FileManagerComp: FC<FileManagerCompProps> = ({
       setContextMenu,
       currentFolder,
       setCurrentFolder,
+
+      containerRef: fileManagerRef,
     };
   }, [
     viewMode,

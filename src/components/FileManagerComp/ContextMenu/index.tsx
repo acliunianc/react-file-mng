@@ -71,8 +71,12 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   onUpload,
   onCreateFolder,
 }) => {
-  const { currentFolder, setSelectedFileIds, setSelectedItems } =
-    useContext(FileManagerContext);
+  const {
+    currentFolder,
+    setSelectedFileIds,
+    setSelectedItems,
+    containerRef: fileManagerContainerRef,
+  } = useContext(FileManagerContext);
 
   const handleContextMenuSelectAll = useCallback(() => {
     setSelectedFileIds((currentFolder.children || [])?.map((it) => it.id));
@@ -162,6 +166,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
       onCreateFolder,
     },
     enabled: true,
+    containerRef: fileManagerContainerRef,
   });
   const containerRef = useRef<HTMLDivElement | null>(null);
 

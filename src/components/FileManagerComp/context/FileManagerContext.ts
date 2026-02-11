@@ -64,6 +64,9 @@ interface FileManagerContextProps {
 
   currentFolder: FileItem;
   setCurrentFolder: React.Dispatch<React.SetStateAction<FileItem>>;
+
+  /** 文件管理器根元素 ref，用于判断快捷键是否应在当前实例内生效（可见/聚焦时才拦截） */
+  containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export const FileManagerContext = createContext<FileManagerContextProps>(
